@@ -41,5 +41,11 @@ public class Capsules {
         caps.addLast("Fekete");
         caps.removeLast();
         System.out.println(caps.getColors());
+
+        List<String> save = new ArrayList<>();
+        save = caps.getColors();
+        save.clear();
+        System.out.println(caps.getColors());
+
     }
 }
