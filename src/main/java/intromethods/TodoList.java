@@ -50,4 +50,9 @@ public class TodoList {
         return counter;
     }
 
+    @Override
+    public String toString() {
+        return todoList.toString();
+    }
+
 }
