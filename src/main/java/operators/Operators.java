@@ -9,4 +9,8 @@ public class Operators {
         return false;
     }
 
+    public void multiplyByPowerOfTwo(int num,int multipleNum) {
+        System.out.println((num << 1) * multipleNum);
+    }
+
 }
