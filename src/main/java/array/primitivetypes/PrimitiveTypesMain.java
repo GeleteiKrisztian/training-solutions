@@ -8,7 +8,7 @@ public class PrimitiveTypesMain {
 
         String integerToBinaryString = Integer.toBinaryString(num);
 
-        System.out.println(primitiveTypes.toBinaryStringSajat(num));
+        System.out.println(primitiveTypes.toBinaryStringSajat(num)); // <- Saját metódus
         System.out.println(primitiveTypes.toBinaryString(num));
         System.out.println(primitiveTypes.toBinaryString(num).equals(integerToBinaryString));
 
