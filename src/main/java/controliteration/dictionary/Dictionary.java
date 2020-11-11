@@ -36,6 +36,8 @@ public class Dictionary {
         dictionary.addItem("Narancs", Arrays.asList("Orange","Orange","Orange","Orange","orange","orange2"));
         System.out.println(dictionary.findTranslations("alma"));
         System.out.println(dictionary.findTranslations("narancs"));
+        System.out.println(dictionary.findTranslations("aaa"));
+
     }
 
 }
