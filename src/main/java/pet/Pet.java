@@ -13,6 +13,9 @@ public class Pet {
         this.name = name;
         this.bornDate = bornDate;
         this.gender = gender;
+        if(regNumber.length() != 6) {
+            throw new IllegalArgumentException("A reg. szám nem egyenlő hattal.");
+        }
         this.regNumber = regNumber;
     }
 
