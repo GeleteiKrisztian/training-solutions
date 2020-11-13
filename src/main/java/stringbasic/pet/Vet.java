@@ -1,4 +1,4 @@
-package pet;
+package stringbasic.pet;
 
 import java.util.ArrayList;
 import java.util.List;
