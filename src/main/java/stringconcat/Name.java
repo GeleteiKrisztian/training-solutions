@@ -8,10 +8,10 @@ public class Name {
     private Title title;
 
     public Name(String familyName, String middleName, String givenName, Title title) {
-        if(familyName == null || "".equals(familyName)) {
+        if(isEmpty(familyName)) {
             throw new IllegalArgumentException("Family name and given name must not be empty!");
         }
-        if (givenName == null || "".equals(givenName)) {
+        if (isEmpty(givenName)) {
             throw new IllegalArgumentException("Family name and given name must not be empty!");
         }
         this.familyName = familyName;
