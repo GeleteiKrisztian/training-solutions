@@ -100,6 +100,17 @@ public class ClassRecords {
         return studyResultByNames;
     }
 
+
+    public boolean removeStudent(Student student) {
+        for (int i = 0; i < students.size(); i++) {
+            if (students.get(i).getName().equals(student.getName())){
+                students.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+    /*
     public boolean removeStudent(Student student) {
         for (Student item : students) {
             if (item.getName().equals(student.getName())) {
@@ -109,6 +120,7 @@ public class ClassRecords {
         }
         return false;
     }
+     */
 
     public Student repetition() {
         if (students.size() == 0) {
