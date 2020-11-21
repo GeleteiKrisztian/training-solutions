@@ -65,7 +65,7 @@ public class Student {
     public String toString() {
         String result = name + " marks: " + marks.get(0).getSubject().getSubjectName() + ": " + marks.get(0);
         for (int i = 1; i < marks.size(); i++){
-            result += ", " + name + " marks: " + marks.get(0).getSubject().getSubjectName() + ": " + marks.get(i);
+            result += ", \n"+ marks.get(i).getSubject().getSubjectName() + ": " + marks.get(i);
         }
         return result;
     }
