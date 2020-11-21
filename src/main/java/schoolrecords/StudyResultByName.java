@@ -18,4 +18,8 @@ public class StudyResultByName {
         return studyAverage;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Diák: %s,átlag: %f",studentName,studyAverage);
+    }
 }
