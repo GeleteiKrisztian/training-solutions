@@ -1,4 +1,4 @@
-package array.primitivetypes;
+package primitivetypes;
 
 public class PrimitiveTypes {
 
