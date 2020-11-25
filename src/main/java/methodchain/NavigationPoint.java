@@ -22,5 +22,4 @@ public class NavigationPoint {
     public String toString() {
         return String.format("distance: %d azimut: %d",distance,azimut);
     }
-
 }

@@ -42,5 +42,4 @@ public class Robot {
         navigationPoints.add(new NavigationPoint(distance,azimut));
         return this;
     }
-
 }
