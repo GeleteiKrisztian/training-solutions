@@ -6,6 +6,9 @@ public class Time {
     private int minutes;
     private int seconds;
 
+    public Time() {
+    }
+
     public Time(int hours, int minutes, int seconds) {
         this.hours = hours;
         this.minutes = minutes;
