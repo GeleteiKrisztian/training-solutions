@@ -1,6 +1,8 @@
 package week04;
 
 import org.junit.jupiter.api.Test;
+import week05.Currency;
+import week05.Product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,7 +10,7 @@ public class ProductTest {
 
     @Test
     void hufToUsd() {
-        assertEquals(2,new Product(600,Currency.HUF).convertPrice(Currency.USD));
+        assertEquals(2,new Product(600, Currency.HUF).convertPrice(Currency.USD));
     }
 
     @Test
