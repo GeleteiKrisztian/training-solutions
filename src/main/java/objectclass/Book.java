@@ -14,8 +14,15 @@ public class Book {
         return author + ":" + title;
     }
 
+    @Override
     public boolean equals(Object o) {
-        return this == o;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Book book = (Book) o;
+
+        if (author != null ? !author.equals(book.author) : book.author != null) return false;
+        return title != null ? title.equals(book.title) : book.title == null;
     }
 
 }
