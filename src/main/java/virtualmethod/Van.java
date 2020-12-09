@@ -18,7 +18,7 @@ public class Van extends Car {
     public String toString() {
         return "Van{" +
                 "cargoWeight=" + cargoWeight +
-                ", numberPassenger=" + numberPassenger +
+                ", numberOfPassenger=" + numberPassenger +
                 ", vehicleWeight=" + vehicleWeight +
                 '}';
     }
