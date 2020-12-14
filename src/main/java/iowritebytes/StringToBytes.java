@@ -18,7 +18,7 @@ public class StringToBytes {
             }
 
         } catch (IOException ex) {
-            throw new IllegalArgumentException("Can't write the file.");
+            throw new IllegalArgumentException("Can't write the file.",ex);
 
         }
     }
