@@ -1,4 +1,4 @@
-package week05;
+package week05d05;
 
 public class Song {
 
