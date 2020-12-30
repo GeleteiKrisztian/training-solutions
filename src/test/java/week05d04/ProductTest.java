@@ -1,8 +1,8 @@
-package week04;
+package week05d04;
 
 import org.junit.jupiter.api.Test;
-import week05.Currency;
-import week05.Product;
+import week05d04.Currency;
+import week05d04.Product;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
