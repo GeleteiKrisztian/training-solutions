@@ -24,13 +24,16 @@ public class Travel {
         } catch (IOException ioe) {
             throw new IllegalArgumentException("", ioe);
         }
+
+        int index = 0;
         int max = 0;
-        for (Integer item : stops) {
-            if (item > max) {
-                max = item;
+        for (int i = 0; i < stops.size(); i++) {
+            if (stops.get(i) > max) {
+                max = stops.get(i);
+                index = i;
             }
         }
-        return max;
+        return index;
     }
 
 }
