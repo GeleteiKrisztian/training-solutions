@@ -1,4 +1,7 @@
-package exceptionclass;
+package exceptionclass.bank2;
+
+import exceptionclass.bank.ErrorCode;
+import exceptionclass.bank.InvalidBankOperationException;
 
 public class Account {
 
@@ -32,17 +35,29 @@ public class Account {
     }
 
     public void setMaxSubtract(double maxSubtract) {
+        if (maxSubtract < 0) {
+            throw new InvalidAmountBankOperationException(ErrorCode.INVALID_AMOUNT);
+        }
         this.maxSubtract = maxSubtract;
     }
 
     public void subtract(double amount) {
+        if (amount < 0) {
+            throw new InvalidAmountBankOperationException(ErrorCode.INVALID_AMOUNT);
+        }
+        if (amount > maxSubtract) {
+            throw new InvalidAmountBankOperationException(ErrorCode.INVALID_AMOUNT);
+        }
         if (balance - amount < 0) {
-            throw new InvalidBankOperationException(ErrorCode.LOW_BALANCE);
+            throw new LowBalanceBankOperationException(ErrorCode.LOW_BALANCE);
         }
         balance -= amount;
     }
 
     public void deposit(double amount) {
+        if (amount < 0) {
+            throw new InvalidAmountBankOperationException(ErrorCode.INVALID_AMOUNT);
+        }
         balance += amount;
     }
 

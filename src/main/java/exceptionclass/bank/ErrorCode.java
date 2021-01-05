@@ -1,4 +1,4 @@
-package exceptionclass;
+package exceptionclass.bank;
 
 public enum ErrorCode {
 

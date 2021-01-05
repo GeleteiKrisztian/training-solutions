@@ -1,4 +1,6 @@
-package exceptionclass;
+package exceptionclass.bank2;
+
+import exceptionclass.bank.ErrorCode;
 
 public class InvalidBankOperationException extends RuntimeException{
 
