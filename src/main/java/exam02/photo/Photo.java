@@ -6,11 +6,13 @@ public class Photo implements Qualified {
     private Quality quality;
 
     public Photo(String name) {
-        this.name = name;
-        quality = Quality.NO_STAR;
+        this(name,Quality.NO_STAR);
     }
 
     public Photo(String name, Quality quality) {
+        if (isNullOrEmpty(name)) {
+            throw new IllegalArgumentException("Name can't be null or empty.");
+        }
         this.name = name;
         this.quality = quality;
     }
@@ -27,6 +29,13 @@ public class Photo implements Qualified {
     @Override
     public void setQuality(Quality quality) {
         this.quality = quality;
+    }
+
+    private boolean isNullOrEmpty(String s) {
+        if (s == null || s.isBlank()) {
+            return true;
+        }
+        return false;
     }
 
 }
