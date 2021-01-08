@@ -88,11 +88,13 @@ public class Track {
     public void loadFromGpx(InputStream is) {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
             String line;
+            Coordinate coordinate = null;
             while ((line = br.readLine()) != null) {
-                Coordinate coordinate = null;
+                line = line.trim();
+
                 if (line.startsWith("<trkpt")) {
-                    String latStr = line.substring(11,21);
-                    String lonStr = line.substring(28,38);
+                    String latStr = line.substring(12,22);
+                    String lonStr = line.substring(29,39);
                     double lat = Double.parseDouble(latStr);
                     double lon = Double.parseDouble(lonStr);
                     coordinate = new Coordinate(lat, lon);
