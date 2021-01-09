@@ -20,4 +20,5 @@ public class Coordinate {
     public double getLongitude() {
         return longitude;
     }
+
 }

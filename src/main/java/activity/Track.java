@@ -30,7 +30,6 @@ public class Track {
                 maxLon = trackPoints.get(i).getCoordinate().getLongitude();
             }
         }
-
         return new Coordinate(maxLat, maxLon);
     }
 
@@ -49,7 +48,6 @@ public class Track {
                 minLon = trackPoints.get(i).getCoordinate().getLongitude();
             }
         }
-
         return new Coordinate(minLat, minLon);
     }
 

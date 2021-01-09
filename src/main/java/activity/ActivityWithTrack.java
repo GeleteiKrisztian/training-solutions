@@ -18,4 +18,5 @@ public class ActivityWithTrack implements Activity {
     public ActivityType getType() {
         return activityType;
     }
+
 }
