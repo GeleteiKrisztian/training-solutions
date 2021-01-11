@@ -13,15 +13,10 @@ public class Lottery {
             throw new IllegalArgumentException("");
         }
 
-        List<Integer> balls = new ArrayList<>();
         Set<Integer> winningNumbers = new HashSet<>();
-        for (int i = 0; i < ballCount; i++) {
-            balls.add(i + 1);
-        }
-
         Random rnd = new Random();
         while (winningNumbers.size() != lotteryType) {
-            int ball = rnd.nextInt(89) + 1;
+            int ball = rnd.nextInt(ballCount -1) + 1;
             winningNumbers.add(ball);
         }
         List<Integer> conv = new ArrayList<>(winningNumbers);
