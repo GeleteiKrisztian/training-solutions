@@ -2,8 +2,8 @@ package collectionsqueue;
 
 public class Job implements Comparable {
 
-    private int priority;
-    private String job;
+    private final int priority;
+    private final String job;
     private boolean urgent;
 
     public Job(int priority, String job) {
@@ -20,6 +20,10 @@ public class Job implements Comparable {
 
     public String getJobDescription() {
         return job;
+    }
+
+    public boolean isUrgent() {
+        return urgent;
     }
 
     @Override
