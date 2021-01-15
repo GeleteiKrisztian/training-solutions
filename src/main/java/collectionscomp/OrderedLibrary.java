@@ -19,12 +19,7 @@ public class OrderedLibrary {
 
     public List<Book> orderedByAuthor() {
         List<Book> orderedByAuthorBooks = new ArrayList<>(libraryBooks);
-        Collections.sort(orderedByAuthorBooks, new Comparator<Book>() {
-            @Override
-            public int compare(Book o1, Book o2) {
-                return o1.getAuthor().compareTo(o2.getAuthor());
-            }
-        });
+        Collections.sort(orderedByAuthorBooks, new AuthorComparator());
         return orderedByAuthorBooks;
     }
 
