@@ -1,7 +1,5 @@
 package sorting;
 
-import java.util.Objects;
-
 public class Book implements Comparable<Book> {
 
     private int id;
