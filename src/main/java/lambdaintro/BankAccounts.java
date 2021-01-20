@@ -23,7 +23,7 @@ public class BankAccounts {
     public List<BankAccount> listBankAccountsByBalance() {
         List<BankAccount> accounts = new ArrayList<>(bankAccounts);
         accounts.sort((account1, account2) ->
-            Double.compare(account1.getBalance(), account2.getBalance())
+            Double.compare(account2.getBalance(), account1.getBalance())
         );
         return accounts;
     }
