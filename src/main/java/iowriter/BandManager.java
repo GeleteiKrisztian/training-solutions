@@ -38,7 +38,7 @@ public class BandManager {
     private List<Band> filterByYear(int year) {
         List<Band> bands = new ArrayList<>();
         for (Band item : this.bands) {
-            if (item.getYear() == year) {
+            if (item.getYear() < year) {
                 bands.add(item);
             }
         }
