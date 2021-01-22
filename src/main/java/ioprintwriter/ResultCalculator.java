@@ -53,11 +53,10 @@ public class ResultCalculator {
         try(BufferedWriter bw = Files.newBufferedWriter(resultFile)) {
             for (Vote item : votes) {
                 int id = item.getId();
-                bw.write(item.getId() + getNameById(id) + item.getNumber());
+                bw.write(item.getId() + " " + getNameById(id) + " " + item.getNumber());
                 bw.newLine();
             }
             bw.write("Winner: " + winnerFinder());
-            System.out.println("Winner: " + winnerFinder());
         } catch (IOException ioe) {
             throw new IllegalStateException("");
         }
