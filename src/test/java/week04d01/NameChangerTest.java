@@ -1,8 +1,8 @@
-package week04d03;
+package week04d01;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import stringconcat.Name;
+import week04d01.NameChanger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
