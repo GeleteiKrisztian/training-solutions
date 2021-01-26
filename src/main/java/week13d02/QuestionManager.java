@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class QuestionManager {
 
-    private String correctAnswers;
+    private String correctAnswers = null;
     private List<Question> questions = new ArrayList<>();
     private Map<String, String> questionsHelper;
 
@@ -18,11 +18,17 @@ public class QuestionManager {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(QuestionManager.class.getResourceAsStream(path)))) {
             String line;
             while ((line = br.readLine()) != null) {
-                correctAnswers = br.readLine();
+                if (correctAnswers == null) {
+                    correctAnswers = br.readLine();
+                    continue;
+                }
                 String[] split = line.split(" ");
                 questions.add(new Question(split[0], Answer.valueOf(split[1])));
             }
             questionsHelper = ListToMap();
+            System.out.println(correctAnswers);
+            System.out.println(questions.size());
+            System.out.println(questionsHelper.size());
         } catch (IOException ioe) {
             throw new IllegalStateException("", ioe);
         }
