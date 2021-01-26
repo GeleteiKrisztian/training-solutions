@@ -19,16 +19,13 @@ public class QuestionManager {
             String line;
             while ((line = br.readLine()) != null) {
                 if (correctAnswers == null) {
-                    correctAnswers = br.readLine();
+                    correctAnswers = line;
                     continue;
                 }
                 String[] split = line.split(" ");
                 questions.add(new Question(split[0], Answer.valueOf(split[1])));
             }
             questionsHelper = ListToMap();
-            System.out.println(correctAnswers);
-            System.out.println(questions.size());
-            System.out.println(questionsHelper.size());
         } catch (IOException ioe) {
             throw new IllegalStateException("", ioe);
         }
@@ -37,7 +34,8 @@ public class QuestionManager {
     public Map<String, String> ListToMap() {
         Map<String, String> answers = new HashMap<>();
         for (Question item : questions) {
-            answers.put(item.getId(), answers.get(item.getId()) + item.getAnswer().name());
+            //Ha még nincs benne,akkor a null-t is hozzáfűzi
+            answers.put(item.getId(), !answers.containsKey(item.getId()) ? item.getAnswer().name() : answers.get(item.getId()) + item.getAnswer().name());
         }
         return answers;
     }
@@ -51,17 +49,18 @@ public class QuestionManager {
     }
 
     public String mostXAnswer() {
-        String id = null;
+        String id = "";
         int xCounter = 0;
-        for (String item : questionsHelper.values()) {
+        for (String keyId : questionsHelper.keySet()) {
+            String answerValue = questionsHelper.get(keyId);
             int counter = 0;
-            for (int i = 0; i < item.length(); i++) {
-                if (item.charAt(i) == 'X') {
+            for (int i = 0; i < answerValue.length(); i++) {
+                if (answerValue.charAt(i) == 'X') {
                     ++counter;
                 }
             }
             if (counter > xCounter) {
-                id = item;
+                id = keyId;
                 xCounter = counter;
             }
         }
@@ -69,15 +68,19 @@ public class QuestionManager {
     }
 
     public String mostPoints() {
-        String id = null;
+        String id = "";
         int pointsCounter = 0;
-        for (String item : questionsHelper.values()) {
+        for (String keyId : questionsHelper.keySet()) {
+            String answerValue = questionsHelper.get(keyId);
             int counter = 0;
-            for (int i = 0; i < item.length(); i++) {
+            for (int i = 0; i < answerValue.length(); i++) {
+                if (answerValue.charAt(i) == 'X') {
+                    continue;
+                }
                     counter += i + 1;
             }
             if (counter > pointsCounter) {
-                id = item;
+                id = keyId;
                 pointsCounter = counter;
             }
         }
