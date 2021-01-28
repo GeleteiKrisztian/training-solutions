@@ -18,6 +18,8 @@ public class TemplateEngine {
                     String partToReplace = line.substring(firstIndex + 1, lastIndex);
                     String newLine = line.replace("{" + partToReplace + "}", map.get(partToReplace).toString());
                     writer.write(newLine + "\n");
+                } else {
+                    writer.write(line + "\n");
                 }
             }
         } catch (IOException ioe) {
