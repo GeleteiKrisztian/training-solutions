@@ -11,12 +11,12 @@ public class PlaneTest {
 
     @Test
     void oceanLengthTest() {
-        assertEquals(16,new Plane().calculateLongestOceanPart(Path.of("map.txt")));
+        assertEquals(16,new Plane().calculateLongestOceanPart(Path.of("src/main/resources/map.txt")));
     }
 
     @Test
     void exceptionWhenBadPathTest() throws IllegalArgumentException {
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> new Plane().calculateLongestOceanPart(Path.of("mapx.txt")));
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> new Plane().calculateLongestOceanPart(Path.of("src/main/resources/mapx.txt")));
         assertEquals("Can't read the file.", ex.getMessage());
     }
 
