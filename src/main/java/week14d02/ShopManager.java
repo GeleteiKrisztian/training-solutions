@@ -102,7 +102,7 @@ public class ShopManager {
         System.out.println(test.sortedBy("BK123", "1211", Comparator.comparing(Product::getPrice)));
         System.out.println(test.numberBought("beer"));
         Map<String, Integer> map = test.statistics();
-        System.out.println(map.get("beer"));
+        System.out.println(map.entrySet());
     }
 
 }
