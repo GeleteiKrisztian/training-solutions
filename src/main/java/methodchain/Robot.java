@@ -30,7 +30,7 @@ public class Robot {
     public Robot rotate(int angle) {
         if (azimut + angle >= 360) {
             azimut = (azimut + angle) - 360;
-        } else if (azimut + angle <= 0) {
+        } else if (azimut + angle < 0) {
             azimut = (azimut + angle) + 360;
         } else {
             azimut = azimut + angle;
