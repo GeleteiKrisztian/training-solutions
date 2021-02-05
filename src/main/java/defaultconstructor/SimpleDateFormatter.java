@@ -1,6 +1,7 @@
 package defaultconstructor;
 
 public class SimpleDateFormatter {
+
     private CountryCode countryCode;
 
     public SimpleDateFormatter() {
