@@ -57,7 +57,7 @@ public class AstroBoy implements FlyableRobot {
     }
 
     public long getAltitude() {
-        return ALTITUDE;
+        return position.getZ();
     }
 
     public int getAngle() {
