@@ -1,4 +1,4 @@
-package iostringwriter;
+package ioreadbytes;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
