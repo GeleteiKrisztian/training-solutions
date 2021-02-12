@@ -1,14 +1,17 @@
 package iofilestest;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.IOException;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LibraryTest2 {
+public class LibraryTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    Path file;
 
     @Test
     void addMethodTest() {
@@ -33,11 +36,11 @@ public class LibraryTest2 {
 
     @Test
     void saveTest() throws IOException {
-        Path file = tempFolder.newFile("generatedBooks.txt").toPath();
+        Path path = file.resolve("generatedBooks.txt");
         Library library = new Library();
         library.add(new Book("Jack Doe", "Title"), new Book("Jane Doe", "Title"), new Book("John Doe", "Title"));
-        library.saveBooks(file);
-        library.loadBooks(file);
+        library.saveBooks(path);
+        library.loadBooks(path);
         assertEquals(3,library.getBooks().size());
     }
 
