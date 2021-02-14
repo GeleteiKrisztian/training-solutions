@@ -25,7 +25,7 @@ public class Clouds {
 
     public List<CloudStorage> worstOffers(List<CloudStorage> cloudsPar) {
         List<CloudStorage> clouds = new ArrayList<>(cloudsPar);
-        clouds.sort(Comparator.nullsFirst(Comparator.naturalOrder()).thenComparing(CloudStorage::getProvider));
+        clouds.sort(Comparator.reverseOrder());
 
 
         List<CloudStorage> res = new ArrayList<>();
