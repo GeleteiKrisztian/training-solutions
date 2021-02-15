@@ -7,18 +7,18 @@ public class Histogram {
 
     public final String REPLACE_CHAR = "*";
 
-    public String createHistogram(BufferedReader Buffreader) {
-        try(BufferedReader br = Buffreader) {
-            String result = "";
+    public String createHistogram(BufferedReader buffReader) {
+        try(BufferedReader br = buffReader) {
+            StringBuilder sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
                 int num = Integer.parseInt(line);
                 for (int i = 0; i < num; i++) {
-                    result += REPLACE_CHAR;
+                    sb.append(REPLACE_CHAR);
                 }
-                result += "\n";
+                sb.append("\n");
             }
-            return result;
+            return sb.toString();
         }
         catch (IOException ioe) {
             throw new IllegalStateException("Can not read the file.", ioe);
