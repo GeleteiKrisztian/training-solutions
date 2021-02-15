@@ -18,9 +18,9 @@ public class BookStore {
         return new ArrayList<>(books);
     }
 
-    public long getNumberOfBooks() {
+    public int getNumberOfBooks() {
         Stream<Book> bookStream = books.stream();
-        return 0;
+        return bookStream.reduce(0, (b1, b2) -> b1 + b2.getPiece(), (b1, b2) -> b1 + b2);
     }
 
     public Optional<Book> findNewestBook() {
@@ -33,7 +33,7 @@ public class BookStore {
 
     public int getTotalValue() {
         Stream<Book> bookStream = books.stream();
-        return 0;
+        return bookStream.reduce(0, (iden, value) -> iden + value.getPrice() * value.getPiece(),(iden, value) -> iden + value);
     }
 
 }
