@@ -1,7 +1,6 @@
 package lambdaprimitives;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class SportGadgetStore {
 
@@ -16,15 +15,25 @@ public class SportGadgetStore {
     }
 
     public int getNumberOfProducts() {
-        return products.stream().map(Product::getPiece).reduce(0, (iden, i) -> iden + i);
+        return products.stream().mapToInt(p -> p.getPiece()).sum();
     }
 
     public double getAveragePrice() {
-        return products.stream().mapToDouble(Product::getPrice).average().getAsDouble();
+        OptionalDouble opt = products.stream().mapToDouble(p -> p.getPrice()).average();
+        if (opt.isPresent()) {
+            return opt.getAsDouble();
+        } else {
+            return 0;
+        }
     }
 
     public String getExpensiveProductStatistics(double minPrice) {
-        return "";
+        IntSummaryStatistics iSumStat = products.stream().filter(price -> price.getPrice() >= minPrice).mapToInt(p -> p.getPiece()).summaryStatistics();
+        if (iSumStat.getCount() == 0) {
+            return "Nincs ilyen termék.";
+        } else {
+            return "Összesen " + iSumStat.getCount() + " féle termék, amelyekből minimum " + iSumStat.getMin() + " db, maximum " + iSumStat.getMax() + " db, összesen " + iSumStat.getSum() + " db van.";
+        }
     }
 
 }
