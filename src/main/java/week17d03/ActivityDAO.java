@@ -52,6 +52,6 @@ public class ActivityDAO {
 
     public static void main(String[] args) {
         LocalDateTime dateTime = LocalDateTime.of(2020, 3, 1, 0, 0, 0);
-        System.out.println(new simpleupdate.ActivityDAO().activitiesBeforeDate(dateTime));
+        System.out.println(new ActivityDAO().activitiesBeforeDate(dateTime));
     }
 }
