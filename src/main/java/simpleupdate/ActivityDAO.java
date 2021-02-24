@@ -2,7 +2,7 @@ package simpleupdate;
 
 import org.mariadb.jdbc.MariaDbDataSource;
 
-import java.sql.SQLException;
+import java.sql.*;
 
 public class ActivityDAO {
 
