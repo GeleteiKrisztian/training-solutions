@@ -24,13 +24,15 @@ public class ActivityTrackerMain {
         {
             statement.setInt(1, id);
             ResultSet res = statement.executeQuery();
-
-            int resId = res.getInt("id");
-            Timestamp timestamp = res.getTimestamp("start_time");
-            String desc = res.getString("activity_desc");
-            ActivityType type = ActivityType.valueOf(res.getString("activity_type"));
-            Activity activity = new Activity(resId, timestamp.toLocalDateTime(), desc, type);
-            return activity;
+            if (res.next()) {
+                int resId = res.getInt("id");
+                Timestamp timestamp = res.getTimestamp("start_time");
+                String desc = res.getString("activity_desc");
+                ActivityType type = ActivityType.valueOf(res.getString("activity_type"));
+                Activity activity = new Activity(resId, timestamp.toLocalDateTime(), desc, type);
+                return activity;
+            }
+            throw new IllegalStateException("");
         }
         catch (SQLException sqlException) {
             throw new IllegalStateException("Not found!", sqlException);
@@ -71,10 +73,8 @@ public class ActivityTrackerMain {
             atm.insertActivity(a3, conn);
 
             List<Activity> activities = atm.selectAllFromDB(conn);
-            //System.out.println(activities);
 
            Activity activity = atm.selectById(2, conn);
-           //System.out.println(activity);
 
         } catch (SQLException sqlException) {
             throw new IllegalStateException("", sqlException);
