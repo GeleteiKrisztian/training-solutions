@@ -53,8 +53,9 @@ class ActivityDAOTest {
 
 
         Assertions.assertThrows(IllegalStateException.class, () -> {
-            activityDAO.saveActivityAndTrackPoint(activity, trackPoint, activityDAO.getConnection());;
+            activityDAO.saveActivityAndTrackPoint(activity, trackPoint, activityDAO.getConnection());
         });
+        assertEquals(0, activityDAO.listActivities().size());
     }
 
     @Test
