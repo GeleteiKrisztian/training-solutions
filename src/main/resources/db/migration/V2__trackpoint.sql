@@ -1,0 +1,9 @@
+CREATE TABLE track_point (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`date` TIMESTAMP NOT NULL,
+ lat DOUBLE NOT NULL,
+  lon DOUBLE NOT NULL,
+   activity_id INT NOT NULL,
+CONSTRAINT `activity_to_trackpoint`
+    FOREIGN KEY (activity_id) REFERENCES activities (id)
+    ON DELETE CASCADE
+    ON UPDATE RESTRICT)
