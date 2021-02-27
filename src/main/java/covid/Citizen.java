@@ -15,10 +15,10 @@ public class Citizen {
 
     public Citizen(String fullName, int postCode, byte age, String email, String tajId) {
         this.fullName = nameValidator(fullName);
-        this.postCode = postCode;
-        this.age = age;
-        this.email = email;
-        this.tajId = tajId;
+        this.postCode = zipValidator(postCode);
+        this.age = ageValidator(age);
+        this.email = emailValidator(email);
+        this.tajId = tajValidator(tajId);
     }
 
     public String getFullName() {
@@ -111,6 +111,6 @@ public class Citizen {
                 return taj;
             }
         }
-        throw new IllegalArgumentException("Invalid taj number.");
+        throw new IllegalArgumentException("Invalid TAJ number.");
     }
 }

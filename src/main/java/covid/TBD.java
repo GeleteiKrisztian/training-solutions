@@ -30,6 +30,7 @@ public class TBD {
             Scanner scanner = new Scanner(System.in);
             item = Integer.parseInt(scanner.nextLine());
             if (item == 0) {
+                System.out.println("Köszönjük!");
                 break;
             }
             System.out.println("\n" + tbd.menuItems.get(item - 1));
