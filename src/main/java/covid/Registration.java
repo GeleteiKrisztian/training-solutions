@@ -2,8 +2,8 @@ package covid;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,12 +26,14 @@ public class Registration {
         regCitizen(citizen);
     }
 
-    public void regFromCSV(Path path) {
+    public void regFromFile() {
+        System.out.print("Add meg a file nevét a beolvasáshoz: ");
+        String fileName = "/" + new Scanner(System.in).nextLine();
         TbdDAO tbdDAO = new TbdDAO();
         try (Connection connection = tbdDAO.getDs().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO citizens (citizen_name, zip, age, email, taj) VALUES (?, ?, ?, ?, ?)")) {
-
-            try (BufferedReader br = Files.newBufferedReader(path)) {
+            InputStream is = TBD.class.getResourceAsStream(fileName);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 connection.setAutoCommit(false);
                 String line;
                 br.readLine();
@@ -39,7 +41,7 @@ public class Registration {
                     String[] split = line.split(";");
                     String name = split[0];
                     String zip = split[1];
-                    int age = Integer.getInteger(split[2]);
+                    int age = Integer.parseInt(split[2]);
                     String email = split[3];
                     String taj = split[4];
                     preparedStatement.setString(1, name);
@@ -50,6 +52,7 @@ public class Registration {
                     preparedStatement.executeUpdate();
                 }
                 connection.commit();
+                System.out.println("Sikeres beolvasás és feltöltés.\n");
             } catch (IOException ioe) {
                 throw new IllegalArgumentException("Can't read from the file.");
             }

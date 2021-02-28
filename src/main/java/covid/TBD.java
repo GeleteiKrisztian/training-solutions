@@ -1,5 +1,7 @@
 package covid;
 
+import java.nio.file.Path;
+import java.sql.SQLOutput;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,9 +14,16 @@ public class TBD {
     }
 
     private void menuChooser(int menuItem) {
+        Registration reg = new Registration();
         switch (menuItem) {
             case 1:
-                new Registration().citizenRegister();
+                reg.citizenRegister();
+                break;
+            case 2:
+                reg.regFromFile();
+                break;
+            case 3:
+                System.out.println(new Generation().readFirst16CitizenByZip().size());
         }
     }
 

@@ -4,14 +4,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class Citizen {
 
+    private int id;
     private String fullName;
     private int postCode;
     private byte age;
     private String email;
     private String tajId;
+    private byte numberOfVaccination;
+    private LocalDateTime lastVaccinationDateTime;
 
     public Citizen(String fullName, int postCode, byte age, String email, String tajId) {
         this.fullName = nameValidator(fullName);
@@ -19,6 +23,17 @@ public class Citizen {
         this.age = ageValidator(age);
         this.email = emailValidator(email);
         this.tajId = tajValidator(tajId);
+    }
+
+    public Citizen(int id, String fullName, int postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime) {
+        this.id = id;
+        this.fullName = fullName;
+        this.postCode = postCode;
+        this.age = age;
+        this.email = email;
+        this.tajId = tajId;
+        this.numberOfVaccination = numberOfVaccination;
+        this.lastVaccinationDateTime = lastVaccinationDateTime;
     }
 
     public String getFullName() {
