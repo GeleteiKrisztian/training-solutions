@@ -13,12 +13,13 @@ import java.util.Scanner;
 
 public class Generation {
 
-    public List<Citizen> readFirst16Citizen() {
+    public List<Citizen> readFirst16CitizenToVaccinate(String zip) {
         List<Citizen> citizens = new ArrayList<>();
         TbdDAO tbdDAO = new TbdDAO();
         try(PreparedStatement preparedStatement =
-                    tbdDAO.getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 16")) {
-            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
+                    tbdDAO.getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE zip = ? AND (number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?)) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 16")) {
+            preparedStatement.setString(1, zip);
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
             ResultSet res = preparedStatement.executeQuery();
             while (res.next()) {
                 int id = res.getInt(1);
@@ -39,8 +40,11 @@ public class Generation {
         }
     }
 
-    public void generateFile() {
-        List<Citizen> citizens = readFirst16Citizen();
+    public void generateFirst16CitizenToVaccinateFile() {
+        System.out.println("Add meg az irányítószámot a szűréshez: ");
+        Scanner scanner = new Scanner(System.in);
+        String zip = scanner.nextLine();
+        List<Citizen> citizens = readFirst16CitizenToVaccinate(zip);
         System.out.print("Add meg a fájl nevét (kiterjesztéssel együtt) a mentéshez: ");
         String file = new Scanner(System.in).nextLine();
         if (!file.contains(".")) {
@@ -89,11 +93,10 @@ public class Generation {
                     preparedStatement.executeUpdate();
                 }
                 connection.commit();
-                System.out.println("Sikeres beolvasás és feltöltés.\n");
+                System.out.println("Sikeres beolvasás és feltöltés: " + fileName.substring(1) + "\n");
             } catch (IOException ioe) {
                 throw new IllegalArgumentException("Can't read from the file.");
             }
-            connection.commit();
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Email or TAJ duplicate.");
         }

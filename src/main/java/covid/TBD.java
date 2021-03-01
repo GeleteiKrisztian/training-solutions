@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class TBD {
 
-    private List<String> menuItems = List.of("Regisztráció", "Tömeges regisztráció", "Generálás", "Oltás", "Oltás meghiúsulás");
+    private List<String> menuItems = List.of("Regisztráció", "Tömeges regisztráció", "Generálás", "Oltás", "Oltás elutasítás", "Riport");
 
     public static void main(String[] args) {
         new TBD().startMenu();
@@ -21,39 +21,51 @@ public class TBD {
                 reg.regFromFile();
                 break;
             case 3:
-                new Generation().generateFile();
+                new Generation().generateFirst16CitizenToVaccinateFile();
                 break;
             case 4:
-                new Vaccination().VaccinationCitizen();
+                new Vaccination().vaccinateCitizen();
+                break;
+            case 5:
+                new Vaccination().excludeCitizenFromVaccination();
                 break;
         }
     }
 
     private void startMenu() {
-        int item = -1;
+        int selectedMenuItemNumber = -1;
         try {
-            while (item != 0) {
+            while (selectedMenuItemNumber != 0) {
                 TBD tbd = new TBD();
+                // Menüt generál a listában tárolt menü nevekből
                 for (int i = 0; i < tbd.menuItems.size(); i++) {
                     System.out.println(i + 1 + ". " + tbd.menuItems.get(i));
                 }
                 System.out.println(0 + ". Kilépés");
                 System.out.print("\nVálassz menüpontot: ");
-                Scanner scanner = new Scanner(System.in);
-                item = Integer.parseInt(scanner.nextLine());
-                if (item < 0 || item > menuItems.size()) {
-                    throw new IllegalMenuItemException("Hibás szám.");
-                }
-                if (item == 0) {
+
+                selectedMenuItemNumber = readSelectedMenuItem();
+
+                if (selectedMenuItemNumber == 0) {
                     System.out.println("Köszönjük!");
                     break;
                 }
-                System.out.println("\n" + tbd.menuItems.get(item - 1));
-                tbd.menuChooser(item);
+                System.out.println("\n" + tbd.menuItems.get(selectedMenuItemNumber - 1));
+                tbd.menuChooser(selectedMenuItemNumber);
             }
         } catch (NumberFormatException | NullPointerException | IllegalMenuItemException e) {
-            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n" + e.getMessage());
+            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
             startMenu();
+        }
+    }
+
+    private int readSelectedMenuItem() {
+        Scanner scanner = new Scanner(System.in);
+        int selectedMenuItemNumber = Integer.parseInt(scanner.nextLine());
+        if (selectedMenuItemNumber < 0 || selectedMenuItemNumber > menuItems.size()) {
+            throw new IllegalMenuItemException("Hibás szám.");
+        } else {
+            return selectedMenuItemNumber;
         }
     }
 }

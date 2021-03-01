@@ -7,10 +7,14 @@ import java.util.Scanner;
 
 public class Vaccination {
 
-    public void VaccinationCitizen() {
-        try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
-            preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
+    public void vaccinateCitizen() {
+        System.out.println("Add meg az irányítószámot a szűréshez: ");
+        Scanner scanner = new Scanner(System.in);
+        String zip = scanner.nextLine();
+        try (PreparedStatement preparedStatement =
+                     new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE zip = ? AND (number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?)) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
+            preparedStatement.setString(1, zip);
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
             ResultSet res = preparedStatement.executeQuery();
 
             if (res.next()) {
@@ -39,19 +43,19 @@ public class Vaccination {
             } else {
                 System.out.println("Gratulálunk! Sikeresen be lett oltva mindenki,vagy nincs olyan,akit be lehetne oltani...MÉG! (Eddig)\n");
             }
-    } catch (SQLException sqlException) {
+        } catch (SQLException sqlException) {
             throw new IllegalStateException("", sqlException);
         }
-}
+    }
 
-    private void updateCitizen(Citizen citizen) {
-        try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1, last_vaccination = NOW() WHERE citizen_id = ?")) {
+    private void updateCitizenVaccinationCounter(Citizen citizen) {
+        try (PreparedStatement preparedStatement =
+                     new TbdDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1, last_vaccination = NOW() WHERE citizen_id = ?")) {
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-        throw new IllegalStateException("", sqlException);
-    }
+            throw new IllegalStateException("", sqlException);
+        }
     }
 
 
@@ -61,7 +65,7 @@ public class Vaccination {
             LocalDateTime dateTime = LocalDateTime.now();
             VaccineType vaccineType;
             if (citizen.getNumberOfVaccination() == 0) {
-                vaccineType = chooseVaccine();
+                vaccineType = chooseVaccineMenu();
             } else {
                 vaccineType = citizen.getVaccineType();
                 System.out.println(citizen.getVaccineType().toString());
@@ -85,69 +89,118 @@ public class Vaccination {
     }
 
     // A taj szám érvényes,ha benne van az adatbázisban,nem kell külön ellenőrizni
-public void getFirstVaccinatonForCitizen(Citizen citizen) {
-    Scanner scanner = new Scanner(System.in);
-    System.out.print("TAJ szám: ");
-    String taj = scanner.nextLine();
-    try(PreparedStatement preparedStatement =
-                new TbdDAO().getDs().getConnection().prepareStatement("SELECT taj FROM citizens WHERE taj = ?")) {
-        preparedStatement.setString(1, taj);
-        ResultSet res = preparedStatement.executeQuery();
-        if (res.next()) {
-            if (!res.getString("taj").equals(citizen.getTajId())) {
-                throw new IllegalStateException("TAJ IDs doesn't match");
+    public void getFirstVaccinatonForCitizen(Citizen citizen) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("TAJ szám: ");
+        String taj = scanner.nextLine();
+        try (PreparedStatement preparedStatement =
+                     new TbdDAO().getDs().getConnection().prepareStatement("SELECT taj FROM citizens WHERE taj = ?")) {
+            preparedStatement.setString(1, taj);
+            ResultSet res = preparedStatement.executeQuery();
+            if (res.next()) {
+                if (!res.getString("taj").equals(citizen.getTajId())) {
+                    throw new IllegalStateException("TAJ IDs doesn't match");
+                }
+                doVaccination(citizen);
+                updateCitizenVaccinationCounter(citizen);
             }
-            doVaccination(citizen);
-            updateCitizen(citizen);
-        }
-    } catch (SQLException sqlException) {
-        throw new IllegalStateException("", sqlException);
-    }
-
-}
-
-    /*public void dosecondVaccinationForCitizen(Citizen citizen) {
-        doVaccination(citizen.getId());
-        try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("UPDATE vaccinations SET status = YES WHERE citizen_id_f = ?")) {
-            preparedStatement.setInt(1, citizen.getId());
-            preparedStatement.executeUpdate();
-            updateCitizen(citizen);
         } catch (SQLException sqlException) {
             throw new IllegalStateException("", sqlException);
         }
-    }
-     */
 
-    private VaccineType chooseVaccine() {
-    int item = -1;
-    VaccineType[] vaccineTypes = VaccineType.values();
-    try {
-        while (item != 0) {
-            for (int i = 0; i < vaccineTypes.length; i++) {
-                System.out.println(i + 1 + ". " + vaccineTypes[i].toString());
-            }
-            System.out.println(0 + ". Kilépés");
-            System.out.print("\nVálassz menüpontot: ");
-            Scanner scanner = new Scanner(System.in);
-            item = Integer.parseInt(scanner.nextLine());
-            if (item < 0 || item > vaccineTypes.length) {
-                throw new IllegalMenuItemException("Hibás szám.");
-            }
-            if (item == 0) {
-                System.out.println("Köszönjük!");
-                break;
-            }
-            System.out.println("\n" + vaccineTypes[item - 1].toString());
-            return vaccineTypes[item - 1];
-        }
-    } catch (NumberFormatException | IllegalMenuItemException e) {
-        System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
-        chooseVaccine();
     }
+
+    private VaccineType chooseVaccineMenu() {
+        int item = -1;
+        VaccineType[] vaccineTypes = VaccineType.values();
+        try {
+            System.out.println("Válassz vakcina típust: ");
+            while (item != 0) {
+                for (int i = 0; i < vaccineTypes.length; i++) {
+                    System.out.println(i + 1 + ". " + vaccineTypes[i].toString());
+                }
+                System.out.println(0 + ". Kilépés");
+                System.out.print("\nVálassz menüpontot: ");
+                Scanner scanner = new Scanner(System.in);
+                item = Integer.parseInt(scanner.nextLine());
+                if (item < 0 || item > vaccineTypes.length) {
+                    throw new IllegalMenuItemException("Hibás szám.");
+                }
+                if (item == 0) {
+                    System.out.println("Köszönjük!");
+                    break;
+                }
+                System.out.println("\nKiválasztott vakcina típus: " + vaccineTypes[item - 1].toString());
+                return vaccineTypes[item - 1];
+            }
+        } catch (NumberFormatException | IllegalMenuItemException e) {
+            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
+            chooseVaccineMenu();
+        }
         return null;
     }
 
+    public void excludeCitizenFromVaccination() {
+        System.out.println("TAJ szám: ");
+        Scanner scanner = new Scanner(System.in);
+        String taj = new Validator().tajValidator(scanner.nextLine());
+        if (new Validator().isContainsDbTaj(taj)) {
+            Citizen citizen = queryCitizenByTaj(taj);
+            try (Connection connection = new TbdDAO().getDs().getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO vaccinations (citizen_id_f, vaccination_date, `status`, note, vaccination_type) VALUES (?, ?, ?, ?, ?)")) {
+preparedStatement.setInt(1, citizen.getId());
+preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+preparedStatement.setString(3, Status.REJECTED.toString());
+                System.out.println("Megjegyzés: ");
+                String desc = scanner.nextLine();
+                preparedStatement.setString(4, desc);
+                preparedStatement.setString(5, null);
+                preparedStatement.executeQuery();
+                System.out.println("Oltás elutasításának regisztrációja sikerült.\n");
+            } catch (SQLException sqlException) {
+                throw new IllegalStateException("", sqlException);
+            }
+        }
+    }
 
+    private Citizen queryCitizenByTaj(String taj) {
+        if (!isCitizenRejected(taj)) {
+            try (Connection connection = new TbdDAO().getDs().getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
+                preparedStatement.setString(1, taj);
+                ResultSet res = preparedStatement.executeQuery();
+                if (res.next()) {
+                    int id = res.getInt(1);
+                    String name = res.getString(2);
+                    int zip = res.getInt(3);
+                    byte age = res.getByte(4);
+                    String email = res.getString(5);
+                    String tajId = res.getString(6);
+                    byte numOfVaccination = -1;
+                    LocalDateTime dateTime = Timestamp.valueOf(res.getString(8)).toLocalDateTime();
+                    Citizen citizen = new Citizen(id, name, zip, age, email, tajId, numOfVaccination, dateTime);
+                    return citizen;
+                }
+            } catch (SQLException sqlException) {
+                throw new IllegalStateException("", sqlException);
+            }
+        }
+        throw new IllegalStateException("Citizen already rejected.");
+    }
+
+    private boolean isCitizenRejected(String taj) {
+        try (Connection connection = new TbdDAO().getDs().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE taj = ? AND status = 'REJECTED'")) {
+            preparedStatement.setString(1, taj);
+            ResultSet res = preparedStatement.executeQuery();
+            if (res.next()) {
+                return true;
+            }
+            return false;
+        }
+             catch (SQLException sqlException) {
+                throw new IllegalStateException("", sqlException);
+            }
+    }
 }
 

@@ -95,4 +95,20 @@ public class Validator {
         }
         throw new IllegalArgumentException("Invalid TAJ number " + taj);
     }
+
+    public boolean isContainsDbTaj(String taj) {
+        try(PreparedStatement preparedStatement =
+                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
+            preparedStatement.setString(1, taj);
+            ResultSet res = preparedStatement.executeQuery();
+            if (res.next()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("", sqlException);
+        }
+    }
 }
+

@@ -12,6 +12,11 @@ import java.util.Scanner;
 public class Registration {
 
     public void citizenRegister() {
+        Citizen citizen = readCitizenFromConsole();
+        regCitizen(citizen);
+    }
+
+    public Citizen readCitizenFromConsole() {
         Validator validator = new Validator();
         Scanner scanner = new Scanner(System.in);
         System.out.print("Teljes név: ");
@@ -24,7 +29,7 @@ public class Registration {
         System.out.print("TAJ szám: ");
         String taj = validator.tajValidator(scanner.nextLine());
         Citizen citizen = new Citizen(name, zip, age, email, taj);
-        regCitizen(citizen);
+        return citizen;
     }
 
     public void regFromFile() {
@@ -74,7 +79,7 @@ public class Registration {
             preparedStatement.executeUpdate();
             System.out.println("Sikeres regisztráció.\n");
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("Can't register citizen.");
+            throw new IllegalStateException("Can't register citizen. " + sqlException.getMessage(), sqlException);
         }
     }
 
