@@ -12,22 +12,24 @@ import java.util.Scanner;
 public class Registration {
 
     public void citizenRegister() {
+        Validator validator = new Validator();
         Scanner scanner = new Scanner(System.in);
         System.out.print("Teljes név: ");
-        String name = scanner.nextLine();
+        String name = validator.nameValidator(scanner.nextLine());
         System.out.print("Irányítószám: ");
-        int zip = Integer.parseInt(scanner.nextLine());
-        System.out.print("Kor: ");
-        byte age = Byte.parseByte(scanner.nextLine());
-        String email = readEmailFromConsole();
+        int zip = validator.zipValidator(Integer.parseInt(scanner.nextLine()));
+        System.out.print("Életkor: ");
+        byte age = validator.ageValidator(Byte.parseByte(scanner.nextLine()));
+        String email = validator.emailValidator(validator.readEmailFromConsole());
         System.out.print("TAJ szám: ");
-        String taj = scanner.nextLine();
+        String taj = validator.tajValidator(scanner.nextLine());
         Citizen citizen = new Citizen(name, zip, age, email, taj);
         regCitizen(citizen);
     }
 
     public void regFromFile() {
-        System.out.print("Add meg a file nevét a beolvasáshoz: ");
+        Validator validator = new Validator();
+        System.out.print("Add meg a file nevét a beolvasáshoz (kiterjesztéssel): ");
         String fileName = "/" + new Scanner(System.in).nextLine();
         TbdDAO tbdDAO = new TbdDAO();
         try (Connection connection = tbdDAO.getDs().getConnection();
@@ -40,14 +42,14 @@ public class Registration {
                 while ((line = br.readLine()) != null) {
                     String[] split = line.split(";");
                     String name = split[0];
-                    String zip = split[1];
-                    int age = Integer.parseInt(split[2]);
+                    int zip = Integer.parseInt(split[1]);
+                    byte age = Byte.parseByte(split[2]);
                     String email = split[3];
                     String taj = split[4];
-                    preparedStatement.setString(1, name);
-                    preparedStatement.setString(2, zip);
-                    preparedStatement.setInt(3, age);
-                    preparedStatement.setString(4, email);
+                    preparedStatement.setString(1, name); //namevalidator
+                    preparedStatement.setString(2, String.valueOf(zip)); //zipvalidator
+                    preparedStatement.setInt(3, validator.ageValidator(age));
+                    preparedStatement.setString(4, validator.emailValidator(email)); // tajvalidator
                     preparedStatement.setString(5, taj);
                     preparedStatement.executeUpdate();
                 }
@@ -58,7 +60,7 @@ public class Registration {
             }
             connection.commit();
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("DB error.");
+            throw new IllegalStateException("Email or TAJ duplicate.");
         }
     }
 
@@ -74,18 +76,5 @@ public class Registration {
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Can't register citizen.");
         }
-
-    }
-
-    private String readEmailFromConsole() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        System.out.print("Email újra: ");
-        String emailAgain = scanner.nextLine();
-        if (email.equals(emailAgain)) {
-            return email;
-        }
-        throw new IllegalStateException("Email address doesn't match.");
     }
 }

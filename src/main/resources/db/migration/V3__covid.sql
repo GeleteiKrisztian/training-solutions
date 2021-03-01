@@ -3,9 +3,9 @@ citizen_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 citizen_name VARCHAR(200) NOT NULL,
 zip CHAR(4) NOT NULL,
 age BIGINT NOT NULL,
-email VARCHAR(200),
-taj VARCHAR(10),
-number_of_vaccination BIGINT,
+email VARCHAR(200) UNIQUE,
+taj VARCHAR(10) UNIQUE,
+number_of_vaccination BIGINT DEFAULT (0),
 last_vaccination DATETIME
 );
 
@@ -30,5 +30,7 @@ shipment_date date NOT NULL
 CREATE TABLE IF NOT EXISTS `zip_and_cities` (
   `zip` int(10) unsigned DEFAULT NULL,
   `city` varchar(50) NOT NULL,
-  `city_part` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `city_part` varchar(50)
+);
+
+INSERT INTO zip_and_cities () VALUES (2000, 'Szentendre', NULL)
