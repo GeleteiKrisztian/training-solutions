@@ -38,7 +38,7 @@ public class Validator {
         TbdDAO tbdDAO = new TbdDAO();
         try(Connection connection = tbdDAO.getDs().getConnection()) {
 
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM  zip_and_cities WHERE zip = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM  cities WHERE zip = ?");
             preparedStatement.setInt(1, zip);
             ResultSet res = preparedStatement.executeQuery();
 
@@ -46,7 +46,7 @@ public class Validator {
                 String fullCityName = res.getString("city");
                 String cityPart = res.getString("city_part");
                 if (cityPart != null) {
-                    fullCityName += " " + cityPart;
+                    fullCityName += " (" + cityPart + ")";
                 }
                 System.out.println(fullCityName);
                 return zip;

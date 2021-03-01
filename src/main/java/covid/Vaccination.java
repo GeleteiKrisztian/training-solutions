@@ -9,7 +9,7 @@ public class Vaccination {
 
     public void VaccinationCitizen() {
         try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE number_of_vaccination = 0 OR (number_of_vaccination > 0 AND last_vaccination < ?) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
+                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
             preparedStatement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
             ResultSet res = preparedStatement.executeQuery();
 
@@ -23,15 +23,21 @@ public class Vaccination {
                 byte numOfVaccs = res.getByte("number_of_vaccination");
                 Timestamp lastVaccination = Optional.ofNullable(res.getTimestamp("last_vaccination")).orElse(Timestamp.valueOf(LocalDateTime.of(2037, 1, 1, 0, 0)));
                 LocalDateTime lastVaccDateTime = lastVaccination.toLocalDateTime();
-                Citizen citizen = new Citizen(id, name, zipCode, age, email, taj, numOfVaccs, lastVaccDateTime);
+                String vaccTypeStr = res.getString("vaccination_type");
+                VaccineType vaccineType = null;
+                if (vaccTypeStr != null) {
+                    vaccineType = VaccineType.valueOf(vaccTypeStr);
+                }
+                Citizen citizen = new Citizen(id, name, zipCode, age, email, taj, numOfVaccs, lastVaccDateTime, vaccineType);
+                System.out.println("Kiválasztva: " + citizen.getFullName());
                 if (citizen.getNumberOfVaccination() == 0) {
                     getFirstVaccinatonForCitizen(citizen);
-                    updateCitizen(citizen);
                 } else {
                     getFirstVaccinatonForCitizen(citizen);
-                    updateCitizen(citizen);
 
                 }
+            } else {
+                System.out.println("Gratulálunk! Sikeresen be lett oltva mindenki,vagy nincs olyan,akit be lehetne oltani...MÉG! (Eddig)\n");
             }
     } catch (SQLException sqlException) {
             throw new IllegalStateException("", sqlException);
@@ -40,7 +46,7 @@ public class Vaccination {
 
     private void updateCitizen(Citizen citizen) {
         try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1 WHERE citizen_id = ?")) {
+                    new TbdDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1, last_vaccination = NOW() WHERE citizen_id = ?")) {
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
@@ -49,22 +55,33 @@ public class Vaccination {
     }
 
 
-    private void doVaccination(int id) {
+    private void doVaccination(Citizen citizen) {
         try (Connection connection = new TbdDAO().getDs().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO vaccinations (citizen_id_f, vaccination_date, `status`, note, vaccination_type) VALUES (?, ?, ?, ?, ?)")) {
             LocalDateTime dateTime = LocalDateTime.now();
-            VaccineType vaccineType = chooseVaccine();
-            preparedStatement.setInt(1, id);
+            VaccineType vaccineType;
+            if (citizen.getNumberOfVaccination() == 0) {
+                vaccineType = chooseVaccine();
+            } else {
+                vaccineType = citizen.getVaccineType();
+                System.out.println(citizen.getVaccineType().toString());
+            }
+            preparedStatement.setInt(1, citizen.getId());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(dateTime));
-            preparedStatement.setString(3, Status.NO.toString());
+            preparedStatement.setString(3, Status.values()[citizen.getNumberOfVaccination() + 1].toString());
             System.out.print("Megjegyzés: ");
             preparedStatement.setString(4, new Scanner(System.in).nextLine() + "\n");
             preparedStatement.setString(5, vaccineType.toString());
             //preparedStatement.setInt(6, id);
             preparedStatement.executeUpdate();
+            System.out.println("Sikeres beoltás.\n");
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Can't vaccination ciziten. DB error.", sqlException);
         }
+    }
+
+    public void getVaccineType(Citizen citizen) {
+
     }
 
     // A taj szám érvényes,ha benne van az adatbázisban,nem kell külön ellenőrizni
@@ -76,8 +93,12 @@ public void getFirstVaccinatonForCitizen(Citizen citizen) {
                 new TbdDAO().getDs().getConnection().prepareStatement("SELECT taj FROM citizens WHERE taj = ?")) {
         preparedStatement.setString(1, taj);
         ResultSet res = preparedStatement.executeQuery();
-        if (res.next() && res.getString("taj").equals(taj)) {
-            doVaccination(citizen.getId());
+        if (res.next()) {
+            if (!res.getString("taj").equals(citizen.getTajId())) {
+                throw new IllegalStateException("TAJ IDs doesn't match");
+            }
+            doVaccination(citizen);
+            updateCitizen(citizen);
         }
     } catch (SQLException sqlException) {
         throw new IllegalStateException("", sqlException);

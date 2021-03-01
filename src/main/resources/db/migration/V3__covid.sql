@@ -13,7 +13,7 @@ CREATE TABLE `vaccinations` (
 vaccination_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 citizen_id_f BIGINT NOT NULL,
 vaccination_date DATETIME NOT NULL,
-status VARCHAR(10),
+status VARCHAR(15),
 note VARCHAR(200),
 vaccination_type varchar(20),
 CONSTRAINT `vaccinations_to_citizens` FOREIGN KEY (citizen_id_f) REFERENCES citizens (citizen_id)
@@ -23,14 +23,7 @@ ON DELETE CASCADE
 
 CREATE TABLE cities (
 city_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-order_id INT NOT NULL,
-shipment_date date NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS `zip_and_cities` (
-  `zip` int(10) unsigned DEFAULT NULL,
-  `city` varchar(50) NOT NULL,
-  `city_part` varchar(50)
-);
-
-INSERT INTO zip_and_cities () VALUES (2000, 'Szentendre', NULL)
+zip VARCHAR(4) NOT NULL,
+city VARCHAR(40) NOT NULL,
+city_part VARCHAR(40)
+)

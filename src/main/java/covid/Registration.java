@@ -77,4 +77,5 @@ public class Registration {
             throw new IllegalStateException("Can't register citizen.");
         }
     }
+
 }

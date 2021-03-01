@@ -52,7 +52,7 @@ public class TBD {
                 tbd.menuChooser(item);
             }
         } catch (NumberFormatException | NullPointerException | IllegalMenuItemException e) {
-            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
+            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n" + e.getMessage());
             startMenu();
         }
     }

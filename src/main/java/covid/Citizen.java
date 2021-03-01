@@ -12,6 +12,7 @@ public class Citizen {
     private String tajId;
     private byte numberOfVaccination;
     private LocalDateTime lastVaccinationDateTime;
+    private VaccineType vaccineType;
 
     public Citizen(String fullName, int postCode, byte age, String email, String tajId) {
         this.fullName = fullName;
@@ -30,6 +31,18 @@ public class Citizen {
         this.tajId = tajId;
         this.numberOfVaccination = numberOfVaccination;
         this.lastVaccinationDateTime = lastVaccinationDateTime;
+    }
+
+    public Citizen(int id, String fullName, int postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime, VaccineType vaccineType) {
+        this.id = id;
+        this.fullName = fullName;
+        this.postCode = postCode;
+        this.age = age;
+        this.email = email;
+        this.tajId = tajId;
+        this.numberOfVaccination = numberOfVaccination;
+        this.lastVaccinationDateTime = lastVaccinationDateTime;
+        this.vaccineType = vaccineType;
     }
 
     public String getFullName() {
@@ -62,6 +75,10 @@ public class Citizen {
 
     public LocalDateTime getLastVaccinationDateTime() {
         return lastVaccinationDateTime;
+    }
+
+    public VaccineType getVaccineType() {
+        return vaccineType;
     }
 
     @Override
