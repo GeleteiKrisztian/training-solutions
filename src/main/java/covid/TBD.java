@@ -12,13 +12,13 @@ public class TBD {
     }
 
     private void menuChooser(int menuItem) {
-        Registration reg = new Registration();
+
         switch (menuItem) {
             case 1:
-                reg.citizenRegister();
+                new Registration().citizenRegister();
                 break;
             case 2:
-                reg.regFromFile();
+                new Registration().regFromFile();
                 break;
             case 3:
                 new Generation().generateFirst16CitizenToVaccinateFile();
@@ -29,6 +29,8 @@ public class TBD {
             case 5:
                 new Vaccination().excludeCitizenFromVaccination();
                 break;
+            case 6:
+                new Generation().riport();
         }
     }
 

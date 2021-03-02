@@ -36,14 +36,12 @@ public class Generation {
             }
             return citizens;
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("Can't read from the DB");
+            throw new IllegalStateException("Can't read citizens from the DB");
         }
     }
 
     public void generateFirst16CitizenToVaccinateFile() {
-        System.out.println("Add meg az irányítószámot a szűréshez: ");
-        Scanner scanner = new Scanner(System.in);
-        String zip = scanner.nextLine();
+        String zip = readZip();
         List<Citizen> citizens = readFirst16CitizenToVaccinate(zip);
         System.out.print("Add meg a fájl nevét (kiterjesztéssel együtt) a mentéshez: ");
         String file = new Scanner(System.in).nextLine();
@@ -69,6 +67,13 @@ public class Generation {
         } catch (IOException ioe) {
             throw new IllegalStateException("Can't write the file");
         }
+    }
+
+    private String readZip() {
+        System.out.println("Add meg az irányítószámot a szűréshez: ");
+        Scanner scanner = new Scanner(System.in);
+        String zip = scanner.nextLine();
+        return zip;
     }
 
     public void importCities() {
@@ -100,6 +105,35 @@ public class Generation {
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Email or TAJ duplicate.");
         }
+    }
+
+    public void riport() {
+        String zip = readZip();
+        System.out.println("Irányítószám: " + zip);
+        for (int i = 0; i < 3; i++) {
+            try (Connection connection = new TbdDAO().getDs().getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT zip, COUNT(number_of_vaccination) AS num_of_vacc FROM citizens WHERE zip = ? AND number_of_vaccination = ? GROUP BY zip ORDER BY zip")) {
+                preparedStatement.setString(1, zip);
+                preparedStatement.setInt(2, i);
+                ResultSet res = preparedStatement.executeQuery();
+                if (res.next()) {
+                    res.beforeFirst();
+                    while (res.next()) {
+                        String whatKindOfPreson = i + "x Beoltott";
+                        if (i == 0) {
+                            whatKindOfPreson = "Beoltatlan";
+                        }
+
+                        System.out.println(whatKindOfPreson + " személy: " + res.getString("num_of_vacc"));
+                    }
+                } else {
+                    throw new IllegalStateException("Nobody found with zip code: " + zip);
+                }
+            } catch (SQLException sqlException) {
+                throw new IllegalStateException("bla bla", sqlException);
+            }
+        }
+        System.out.println();
     }
 
 }
