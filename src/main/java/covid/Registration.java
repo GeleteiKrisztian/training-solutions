@@ -12,24 +12,8 @@ import java.util.Scanner;
 public class Registration {
 
     public void citizenRegister() {
-        Citizen citizen = readCitizenFromConsole();
+        Citizen citizen = new ReadFromConsole().readCitizen();
         regCitizen(citizen);
-    }
-
-    public Citizen readCitizenFromConsole() {
-        Validator validator = new Validator();
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Teljes név: ");
-        String name = validator.nameValidator(scanner.nextLine());
-        System.out.print("Irányítószám: ");
-        int zip = validator.zipValidator(Integer.parseInt(scanner.nextLine()));
-        System.out.print("Életkor: ");
-        byte age = validator.ageValidator(Byte.parseByte(scanner.nextLine()));
-        String email = validator.emailValidator(validator.readEmailFromConsole());
-        System.out.print("TAJ szám: ");
-        String taj = validator.tajValidator(scanner.nextLine());
-        Citizen citizen = new Citizen(name, zip, age, email, taj);
-        return citizen;
     }
 
     public void regFromFile() {
@@ -69,7 +53,7 @@ public class Registration {
         }
     }
 
-    private void regCitizen(Citizen citizen) {
+    public void regCitizen(Citizen citizen) {
         try (PreparedStatement preparedStatement = new TbdDAO().getDs().getConnection().prepareStatement("INSERT INTO citizens (citizen_name, zip, age, email, taj) VALUES (?, ?, ?, ?, ?)")) {
             preparedStatement.setString(1, citizen.getFullName());
             preparedStatement.setString(2, String.valueOf(citizen.getPostCode()));

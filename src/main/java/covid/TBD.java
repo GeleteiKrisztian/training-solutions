@@ -24,7 +24,7 @@ public class TBD {
                 new Generation().generateFirst16CitizenToVaccinateFile();
                 break;
             case 4:
-                new Vaccination().vaccinateCitizen();
+                new Vaccination().startVaccinateCitizen();
                 break;
             case 5:
                 new Vaccination().excludeCitizenFromVaccination();
@@ -55,7 +55,8 @@ public class TBD {
                 System.out.println("\n" + tbd.menuItems.get(selectedMenuItemNumber - 1));
                 tbd.menuChooser(selectedMenuItemNumber);
             }
-        } catch (NumberFormatException | NullPointerException | IllegalMenuItemException e) {
+            //NumberFormatException | NullPointerException |
+        } catch ( IllegalMenuItemException e) {
             System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
             startMenu();
         }
@@ -70,4 +71,5 @@ public class TBD {
             return selectedMenuItemNumber;
         }
     }
+
 }

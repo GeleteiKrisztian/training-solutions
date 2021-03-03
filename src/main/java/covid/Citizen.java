@@ -6,7 +6,7 @@ public class Citizen {
 
     private int id;
     private String fullName;
-    private int postCode;
+    private String postCode;
     private byte age;
     private String email;
     private String tajId;
@@ -14,32 +14,24 @@ public class Citizen {
     private LocalDateTime lastVaccinationDateTime;
     private VaccineType vaccineType;
 
-    public Citizen(String fullName, int postCode, byte age, String email, String tajId) {
-        this.fullName = fullName;
-        this.postCode = postCode;
-        this.age = age;
-        this.email = email;
-        this.tajId = tajId;
+    public Citizen(String fullName, String postCode, byte age, String email, String tajId) {
+        this.fullName = Validator.nameValidator(fullName);
+        this.postCode = Validator.zipValidator(postCode);
+        this.age = Validator.ageValidator(age);
+        this.email = Validator.emailValidator(email);
+        this.tajId = Validator.tajValidator(tajId);
     }
 
-    public Citizen(int id, String fullName, int postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime) {
+    public Citizen(int id, String fullName, String postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime) {
+
         this.id = id;
-        this.fullName = fullName;
-        this.postCode = postCode;
-        this.age = age;
-        this.email = email;
-        this.tajId = tajId;
         this.numberOfVaccination = numberOfVaccination;
         this.lastVaccinationDateTime = lastVaccinationDateTime;
     }
 
-    public Citizen(int id, String fullName, int postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime, VaccineType vaccineType) {
+    public Citizen(int id, String fullName, String postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime, VaccineType vaccineType) {
+        this(fullName, postCode, age, email, tajId);
         this.id = id;
-        this.fullName = fullName;
-        this.postCode = postCode;
-        this.age = age;
-        this.email = email;
-        this.tajId = tajId;
         this.numberOfVaccination = numberOfVaccination;
         this.lastVaccinationDateTime = lastVaccinationDateTime;
         this.vaccineType = vaccineType;
@@ -49,7 +41,7 @@ public class Citizen {
         return fullName;
     }
 
-    public int getPostCode() {
+    public String getPostCode() {
         return postCode;
     }
 

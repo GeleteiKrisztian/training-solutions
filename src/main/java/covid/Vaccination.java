@@ -3,53 +3,23 @@ package covid;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class Vaccination {
 
     private List<Citizen> citizens;
 
-    /*
-    private void citizenChooser(int menuItem) {
-        doVaccination(citizens.get(menuItem - 1));
-    }
-
-    private void startMenu(List<Citizen> citizens) {
-        int selectedMenuItemNumber = 0;
-        try {
-            while (selectedMenuItemNumber > 0 || selectedMenuItemNumber > citizens.size()) {
-                // Menüt generál a listában tárolt menü nevekből
-                for (int i = 0; i < citizens.size(); i++) {
-                    System.out.println(i + 1 + ". " + citizens.get(i).getFullName());
-                }
-                System.out.println(0 + ". Kilépés");
-                System.out.print("\nVálassz menüpontot: ");
-
-                selectedMenuItemNumber = new TBD().readSelectedMenuItem();
-                citizenChooser(selectedMenuItemNumber);
-            }
-        } catch (NumberFormatException | NullPointerException | IllegalMenuItemException e) {
-            System.out.println("Hibás adatbevitel. Kérlek válassz újra: \n");
-             startMenu(citizens);
-        }
-    }
-     */
-
-    public void vaccinateCitizen() {
-        Generation gen = new Generation();
-        String zip = gen.readZip();
-        citizens = gen.readFirst16CitizenToVaccinate(zip);
+    public void startVaccinateCitizen() {
+        ReadFromConsole rfc = new ReadFromConsole();
+        String zip = rfc.readZip();
+        citizens = new Generation().readFirst16CitizenToVaccinate(zip);
         if (citizens.size() == 0) {
-            System.out.println("Gratulálunk! Nincs olyan,akit be lehetne oltani...MÉG!\n");
+            System.out.println("Gratulálunk! Nincs olyan,akit be lehetne oltani ezen az irányítószámon...MÉG!\n");
             return;
         }
-        String taj = new Generation().readTaj();
-        Citizen citizen = findcitizenByTaj(taj);
+        String taj = rfc.readTaj();
+        Citizen citizen = findCitizenByTaj(taj);
         doVaccination(citizen);
-        updateCitizenVaccinationCounter(citizen);
-
-
     }
 
     private void updateCitizenVaccinationCounter(Citizen citizen) {
@@ -58,11 +28,11 @@ public class Vaccination {
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("", sqlException);
+            throw new IllegalStateException("DB error. Can't update citizen vaccination number.", sqlException);
         }
     }
 
-    public Citizen findcitizenByTaj(String taj) {
+    public Citizen findCitizenByTaj(String taj) {
         for (Citizen item : citizens) {
             if (item.getTajId().equals(taj) && new Validator().isContainsDbTaj(taj)) {
                 System.out.println(item.getFullName());
@@ -87,14 +57,14 @@ public class Vaccination {
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(dateTime));
             preparedStatement.setString(3, Status.values()[citizen.getNumberOfVaccination() + 1].toString());
-            System.out.print("Megjegyzés: ");
-            preparedStatement.setString(4, new Scanner(System.in).nextLine() + "\n");
+           String desc = new ReadFromConsole().readDescription();
+            preparedStatement.setString(4, desc + "\n");
             preparedStatement.setString(5, vaccineType.toString());
-            //preparedStatement.setInt(6, id);
             preparedStatement.executeUpdate();
+            updateCitizenVaccinationCounter(citizen);
             System.out.println("Sikeres beoltás.\n");
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("Can't vaccination ciziten. DB error.", sqlException);
+            throw new IllegalStateException("Can't vaccinate ciziten. DB error.", sqlException);
         }
     }
 
@@ -129,26 +99,21 @@ public class Vaccination {
     }
 
     public void excludeCitizenFromVaccination() {
-        System.out.println("TAJ szám: ");
-        Scanner scanner = new Scanner(System.in);
-        String taj = new Validator().tajValidator(scanner.nextLine());
-        if (new Validator().isContainsDbTaj(taj)) {
+        String taj = new ReadFromConsole().readTaj();
             Citizen citizen = queryCitizenByTaj(taj);
             try (Connection connection = new TbdDAO().getDs().getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO vaccinations (citizen_id_f, vaccination_date, `status`, note, vaccination_type) VALUES (?, ?, ?, ?, ?)")) {
 preparedStatement.setInt(1, citizen.getId());
 preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
 preparedStatement.setString(3, Status.REJECTED.toString());
-                System.out.println("Megjegyzés: ");
-                String desc = scanner.nextLine();
+                String desc = new ReadFromConsole().readDescription();
                 preparedStatement.setString(4, desc);
                 preparedStatement.setString(5, null);
                 preparedStatement.executeQuery();
                 System.out.println("Oltás elutasításának regisztrációja sikerült.\n");
             } catch (SQLException sqlException) {
-                throw new IllegalStateException("", sqlException);
+                throw new IllegalStateException("Oltás elutasításának regisztrációja sikertelen.", sqlException);
             }
-        }
     }
 
     private Citizen queryCitizenByTaj(String taj) {
@@ -160,7 +125,7 @@ preparedStatement.setString(3, Status.REJECTED.toString());
                 if (res.next()) {
                     int id = res.getInt(1);
                     String name = res.getString(2);
-                    int zip = res.getInt(3);
+                    String zip = res.getString(3);
                     byte age = res.getByte(4);
                     String email = res.getString(5);
                     String tajId = res.getString(6);

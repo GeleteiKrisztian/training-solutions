@@ -4,42 +4,31 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class Validator {
 
-    public String readEmailFromConsole() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Email: ");
-        String email = scanner.nextLine();
-        System.out.print("Email újra: ");
-        String emailAgain = scanner.nextLine();
-        if (email.equals(emailAgain)) {
-            return email;
-        }
-        throw new IllegalStateException("Email address doesn't match.");
-    }
-
-    public String nameValidator(String name) {
+    public static String nameValidator(String name) {
+        validateIsNotNullOrEmptyString(name);
         String[] split = name.split(" ");
+        if (split.length < 2) {
+            throw new IllegalArgumentException("Invalid name: " + name);
+        }
         for (int i = 0; i < split.length; i++) {
             boolean isNameStartsWithLowerCase = Character.isLowerCase(split[i].charAt(0));
             if (isNameStartsWithLowerCase) {
                 throw new IllegalArgumentException("Invalid name format: " + name + " Full name format required.");
             }
         }
-        if (name == null || name.isBlank() || split.length < 2) {
-            throw new IllegalArgumentException("Invalid name " + name);
-        }
         return name.trim();
     }
 
-    public int zipValidator(int zip) {
+    public static String zipValidator(String zip) {
+        validateIsNotNullOrEmptyString(zip);
         TbdDAO tbdDAO = new TbdDAO();
         try(Connection connection = tbdDAO.getDs().getConnection()) {
 
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM  cities WHERE zip = ?");
-            preparedStatement.setInt(1, zip);
+            preparedStatement.setString(1, zip);
             ResultSet res = preparedStatement.executeQuery();
 
             if (res.next()) {
@@ -51,32 +40,43 @@ public class Validator {
                 System.out.println(fullCityName);
                 return zip;
             }
-            throw new IllegalArgumentException("Invalid zip code " + zip);
+            throw new IllegalArgumentException("Invalid zip code: " + zip);
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("Can't connect to the database.");
+            throw new IllegalStateException("DB error.", sqlException);
         }
     }
 
-    public byte ageValidator(byte age) {
+    public static byte ageValidator(byte age) {
         if (age > 10 && age < 150) {
             return age;
         }
-        throw new IllegalArgumentException("Invalid age " + age);
+        throw new IllegalArgumentException("Invalid age: " + age);
     }
 
-    public String emailValidator(String email) {
+    public static String emailsEqual(String email,String emailAgain) {
+        validateIsNotNullOrEmptyString(email);
+        validateIsNotNullOrEmptyString(emailAgain);
+        if (email.equals(emailAgain)) {
+            return email;
+        }
+        throw new IllegalArgumentException("Email address doesn't match.");
+    }
+
+    public static String emailValidator(String email) {
+        validateIsNotNullOrEmptyString(email);
         // Ha nincs kukac az emailben,vagy a kukac előtt kevesebb,mint 3 karakter található vagy utána nincs pont
         // karakter,akkor hibát dob
         if (email.contains("@")) {
             String[] split = email.split("@");
-            if (split[0].length() > 3 || split[1].contains(".")) {
-                return email;
+            if (split[0].length() > 3 && split[1].contains(".")) {
+                return email.toLowerCase();
             }
         }
-        throw new IllegalArgumentException("Invalid email address " + email);
+        throw new IllegalArgumentException("Invalid email address: " + email);
     }
 
-    public String tajValidator(String taj) {
+    public static String tajValidator(String taj) {
+        validateIsNotNullOrEmptyString(taj);
         if (taj.length() == 9) {
             int sum = 0;
             for (int i = 0; i < 8; i++) {
@@ -93,10 +93,11 @@ public class Validator {
                 return taj;
             }
         }
-        throw new IllegalArgumentException("Invalid TAJ number " + taj);
+        throw new IllegalArgumentException("Invalid TAJ number: " + taj);
     }
 
-    public boolean isContainsDbTaj(String taj) {
+    public static boolean isContainsDbTaj(String taj) {
+        validateIsNotNullOrEmptyString(taj);
         try(PreparedStatement preparedStatement =
                     new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
             preparedStatement.setString(1, taj);
@@ -107,7 +108,13 @@ public class Validator {
                 return false;
             }
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("", sqlException);
+            throw new IllegalStateException("TAJ not registered.", sqlException);
+        }
+    }
+
+    public static void validateIsNotNullOrEmptyString(String s) {
+        if (s == null || s.isBlank()) {
+            throw new IllegalArgumentException("String is null or empty.");
         }
     }
 }

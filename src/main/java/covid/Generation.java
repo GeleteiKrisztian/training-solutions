@@ -15,7 +15,6 @@ public class Generation {
 
     public List<Citizen> readFirst16CitizenToVaccinate(String zip) {
         List<Citizen> citizens = new ArrayList<>();
-        TbdDAO tbdDAO = new TbdDAO();
         try(PreparedStatement preparedStatement =
                     new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE zip = ? AND (number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?)) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
             preparedStatement.setString(1, zip);
@@ -24,7 +23,7 @@ public class Generation {
             while (res.next()) {
                 int id = res.getInt(1);
                 String name = res.getString("citizen_name");
-                int zipCode = res.getInt("zip");
+                String zipCode = res.getString("zip");
                 byte age = res.getByte("age");
                 String email = res.getString("email");
                 String taj = res.getString("taj");
@@ -46,7 +45,7 @@ public class Generation {
     }
 
     public void generateFirst16CitizenToVaccinateFile() {
-        String zip = readZip();
+        String zip = new ReadFromConsole().readZip();
         List<Citizen> citizens = readFirst16CitizenToVaccinate(zip);
         System.out.print("Add meg a fájl nevét (kiterjesztéssel együtt) a mentéshez: ");
         String file = new Scanner(System.in).nextLine();
@@ -72,20 +71,6 @@ public class Generation {
         } catch (IOException ioe) {
             throw new IllegalStateException("Can't write the file");
         }
-    }
-
-    public String readZip() {
-        System.out.println("Add meg az irányítószámot a szűréshez: ");
-        Scanner scanner = new Scanner(System.in);
-        String zip = scanner.nextLine();
-        return zip;
-    }
-
-    public String readTaj() {
-        System.out.println("Add meg az TAJ számot: ");
-        Scanner scanner = new Scanner(System.in);
-        String taj = scanner.nextLine();
-        return taj;
     }
 
     public void importCities() {
