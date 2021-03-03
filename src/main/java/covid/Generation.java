@@ -17,7 +17,7 @@ public class Generation {
         List<Citizen> citizens = new ArrayList<>();
         TbdDAO tbdDAO = new TbdDAO();
         try(PreparedStatement preparedStatement =
-                    tbdDAO.getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE zip = ? AND (number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?)) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 16")) {
+                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE zip = ? AND (number_of_vaccination = 0 OR (number_of_vaccination > 0 AND number_of_vaccination < 2 AND last_vaccination < ?)) ORDER BY zip, age DESC, citizen_name, number_of_vaccination ASC LIMIT 1")) {
             preparedStatement.setString(1, zip);
             preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now().minusDays(15)));
             ResultSet res = preparedStatement.executeQuery();
@@ -31,7 +31,12 @@ public class Generation {
                 byte numOfVaccs = res.getByte("number_of_vaccination");
                 Timestamp lastVaccination = Optional.ofNullable(res.getTimestamp("last_vaccination")).orElse(Timestamp.valueOf(LocalDateTime.of(2037,1,1,0,0)));
                 LocalDateTime lastVaccDateTime = lastVaccination.toLocalDateTime();
-                Citizen citizen = new Citizen(id, name, zipCode, age, email, taj, numOfVaccs, lastVaccDateTime);
+            String vaccTypeStr = res.getString("vaccination_type");
+            VaccineType vaccineType = null;
+            if (vaccTypeStr != null) {
+                vaccineType = VaccineType.valueOf(vaccTypeStr);
+            }
+                Citizen citizen = new Citizen(id, name, zipCode, age, email, taj, numOfVaccs, lastVaccDateTime, vaccineType);
                 citizens.add(citizen);
             }
             return citizens;
@@ -69,11 +74,18 @@ public class Generation {
         }
     }
 
-    private String readZip() {
+    public String readZip() {
         System.out.println("Add meg az irányítószámot a szűréshez: ");
         Scanner scanner = new Scanner(System.in);
         String zip = scanner.nextLine();
         return zip;
+    }
+
+    public String readTaj() {
+        System.out.println("Add meg az TAJ számot: ");
+        Scanner scanner = new Scanner(System.in);
+        String taj = scanner.nextLine();
+        return taj;
     }
 
     public void importCities() {
@@ -100,37 +112,27 @@ public class Generation {
                 connection.commit();
                 System.out.println("Sikeres beolvasás és feltöltés: " + fileName.substring(1) + "\n");
             } catch (IOException ioe) {
+                connection.rollback();
                 throw new IllegalArgumentException("Can't read from the file.");
             }
         } catch (SQLException sqlException) {
-            throw new IllegalStateException("Email or TAJ duplicate.");
+            throw new IllegalStateException(":)", sqlException);
         }
     }
 
     public void riport() {
-        String zip = readZip();
-        System.out.println("Irányítószám: " + zip);
         for (int i = 0; i < 3; i++) {
             try (Connection connection = new TbdDAO().getDs().getConnection();
-                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT zip, COUNT(number_of_vaccination) AS num_of_vacc FROM citizens WHERE zip = ? AND number_of_vaccination = ? GROUP BY zip ORDER BY zip")) {
-                preparedStatement.setString(1, zip);
-                preparedStatement.setInt(2, i);
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT zip, COUNT(number_of_vaccination) AS num_of_vaccs FROM citizens WHERE number_of_vaccination = ? GROUP BY zip ORDER BY zip")) {
+                preparedStatement.setInt(1, i);
                 ResultSet res = preparedStatement.executeQuery();
-                if (res.next()) {
-                    res.beforeFirst();
+                System.out.println(i + "x beoltottak: ");
                     while (res.next()) {
-                        String whatKindOfPreson = i + "x Beoltott";
-                        if (i == 0) {
-                            whatKindOfPreson = "Beoltatlan";
-                        }
-
-                        System.out.println(whatKindOfPreson + " személy: " + res.getString("num_of_vacc"));
+                        System.out.println("Irányítószám - " + res.getString("zip") + ": " + res.getInt("num_of_vaccs") + " személy");
                     }
-                } else {
-                    throw new IllegalStateException("Nobody found with zip code: " + zip);
-                }
+
             } catch (SQLException sqlException) {
-                throw new IllegalStateException("bla bla", sqlException);
+                throw new IllegalStateException("No registered citizens in the DB.", sqlException);
             }
         }
         System.out.println();

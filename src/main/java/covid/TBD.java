@@ -61,7 +61,7 @@ public class TBD {
         }
     }
 
-    private int readSelectedMenuItem() {
+    public int readSelectedMenuItem() {
         Scanner scanner = new Scanner(System.in);
         int selectedMenuItemNumber = Integer.parseInt(scanner.nextLine());
         if (selectedMenuItemNumber < 0 || selectedMenuItemNumber > menuItems.size()) {
