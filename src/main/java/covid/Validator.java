@@ -24,20 +24,14 @@ public class Validator {
 
     public static String zipValidator(String zip) {
         validateIsNotNullOrEmptyString(zip);
-        TbdDAO tbdDAO = new TbdDAO();
-        try(Connection connection = tbdDAO.getDs().getConnection()) {
+        MenuDAO menuDAO = new MenuDAO();
+        try(Connection connection = menuDAO.getDs().getConnection()) {
 
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM  cities WHERE zip = ?");
             preparedStatement.setString(1, zip);
             ResultSet res = preparedStatement.executeQuery();
 
             if (res.next()) {
-                String fullCityName = res.getString("city");
-                String cityPart = res.getString("city_part");
-                if (cityPart != null) {
-                    fullCityName += " (" + cityPart + ")";
-                }
-                System.out.println(fullCityName);
                 return zip;
             }
             throw new IllegalArgumentException("Invalid zip code: " + zip);
@@ -68,11 +62,11 @@ public class Validator {
         // karakter,akkor hibát dob
         if (email.contains("@")) {
             String[] split = email.split("@");
-            if (split[0].length() > 3 && split[1].contains(".")) {
+            if (split[0].length() > 2 && split[1].contains(".")) {
                 return email.toLowerCase();
             }
         }
-        throw new IllegalArgumentException("Invalid email address: " + email);
+            throw new IllegalArgumentException("Invalid email address: " + email);
     }
 
     public static String tajValidator(String taj) {
@@ -99,7 +93,7 @@ public class Validator {
     public static boolean isContainsDbTaj(String taj) {
         validateIsNotNullOrEmptyString(taj);
         try(PreparedStatement preparedStatement =
-                    new TbdDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
+                    new MenuDAO().getDs().getConnection().prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
             preparedStatement.setString(1, taj);
             ResultSet res = preparedStatement.executeQuery();
             if (res.next()) {

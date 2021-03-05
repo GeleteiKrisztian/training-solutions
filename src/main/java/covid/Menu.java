@@ -3,12 +3,12 @@ package covid;
 import java.util.List;
 import java.util.Scanner;
 
-public class TBD {
+public class Menu {
 
     private List<String> menuItems = List.of("Regisztráció", "Tömeges regisztráció", "Generálás", "Oltás", "Oltás elutasítás", "Riport");
 
     public static void main(String[] args) {
-        new TBD().startMenu();
+        new Menu().startMenu();
     }
 
     private void menuChooser(int menuItem) {
@@ -18,16 +18,16 @@ public class TBD {
                 new Registration().citizenRegister();
                 break;
             case 2:
-                new Registration().regFromFile();
+                new Registration().startRegFromFile();
                 break;
             case 3:
-                new Generation().generateFirst16CitizenToVaccinateFile();
+                new Generation().startGenerateFirst16CitizenToVaccinateFile();
                 break;
             case 4:
                 new Vaccination().startVaccinateCitizen();
                 break;
             case 5:
-                new Vaccination().excludeCitizenFromVaccination();
+                new Vaccination().startExcludeCitizenFromVaccList();
                 break;
             case 6:
                 new Generation().riport();
@@ -38,10 +38,10 @@ public class TBD {
         int selectedMenuItemNumber = -1;
         try {
             while (selectedMenuItemNumber != 0) {
-                TBD tbd = new TBD();
+                Menu menu = new Menu();
                 // Menüt generál a listában tárolt menü nevekből
-                for (int i = 0; i < tbd.menuItems.size(); i++) {
-                    System.out.println(i + 1 + ". " + tbd.menuItems.get(i));
+                for (int i = 0; i < menu.menuItems.size(); i++) {
+                    System.out.println(i + 1 + ". " + menu.menuItems.get(i));
                 }
                 System.out.println(0 + ". Kilépés");
                 System.out.print("\nVálassz menüpontot: ");
@@ -52,8 +52,8 @@ public class TBD {
                     System.out.println("Köszönjük!");
                     break;
                 }
-                System.out.println("\n" + tbd.menuItems.get(selectedMenuItemNumber - 1));
-                tbd.menuChooser(selectedMenuItemNumber);
+                System.out.println("\n" + menu.menuItems.get(selectedMenuItemNumber - 1));
+                menu.menuChooser(selectedMenuItemNumber);
             }
             //NumberFormatException | NullPointerException |
         } catch ( IllegalMenuItemException e) {

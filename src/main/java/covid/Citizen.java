@@ -12,6 +12,7 @@ public class Citizen {
     private String tajId;
     private byte numberOfVaccination;
     private LocalDateTime lastVaccinationDateTime;
+    private Status status;
     private VaccineType vaccineType;
 
     public Citizen(String fullName, String postCode, byte age, String email, String tajId) {
@@ -34,6 +35,15 @@ public class Citizen {
         this.id = id;
         this.numberOfVaccination = numberOfVaccination;
         this.lastVaccinationDateTime = lastVaccinationDateTime;
+        this.vaccineType = vaccineType;
+    }
+
+    public Citizen(int id, String fullName, String postCode, byte age, String email, String tajId, byte numberOfVaccination, LocalDateTime lastVaccinationDateTime, Status status, VaccineType vaccineType) {
+        this(fullName, postCode, age, email, tajId);
+        this.id = id;
+        this.numberOfVaccination = numberOfVaccination;
+        this.lastVaccinationDateTime = lastVaccinationDateTime;
+        this.status = status;
         this.vaccineType = vaccineType;
     }
 
@@ -67,6 +77,10 @@ public class Citizen {
 
     public LocalDateTime getLastVaccinationDateTime() {
         return lastVaccinationDateTime;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public VaccineType getVaccineType() {

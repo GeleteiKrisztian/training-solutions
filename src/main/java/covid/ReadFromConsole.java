@@ -1,13 +1,22 @@
 package covid;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class ReadFromConsole {
 
     private Scanner scanner = new Scanner(System.in);
 
-    public static String readEmailFromConsole() {
-        Scanner scanner = new Scanner(System.in);
+    public String readFileName() {
+        System.out.print("Add meg a file nevét a beolvasáshoz (kiterjesztéssel): ");
+        String fileName = scanner.nextLine();
+        return fileName;
+    }
+
+    public String readEmailFromConsole() {
         System.out.print("Email: ");
         String email = scanner.nextLine();
         System.out.print("Email újra: ");
@@ -17,9 +26,28 @@ public class ReadFromConsole {
     }
 
     public String readZip() {
-        System.out.println("Add meg az irányítószámot a szűréshez: ");
+        System.out.println("Irányítószám: ");
         String zip = Validator.zipValidator(scanner.nextLine());
-        return zip;
+        MenuDAO menuDAO = new MenuDAO();
+        try(Connection connection = menuDAO.getDs().getConnection()) {
+
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM  cities WHERE zip = ?");
+            preparedStatement.setString(1, zip);
+            ResultSet res = preparedStatement.executeQuery();
+
+            if (res.next()) {
+                String fullCityName = res.getString("city");
+                String cityPart = res.getString("city_part");
+                if (cityPart != null) {
+                    fullCityName += " (" + cityPart + ")";
+                }
+                System.out.println(fullCityName);
+                return zip;
+            }
+            throw new IllegalArgumentException("Invalid zip code: " + zip);
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("DB error.", sqlException);
+        }
     }
 
     public String readDescription() {
@@ -29,14 +57,12 @@ public class ReadFromConsole {
     }
 
     public Citizen readCitizen() {
-        Scanner scanner = new Scanner(System.in);
         System.out.print("Teljes név: ");
         String name = Validator.nameValidator(scanner.nextLine());
-        System.out.print("Irányítószám: ");
-        String zip = Validator.zipValidator(scanner.nextLine());
+        String zip = Validator.zipValidator(readZip());
         System.out.print("Életkor: ");
         byte age = Validator.ageValidator(Byte.parseByte(scanner.nextLine()));
-        String emailToVal = ReadFromConsole.readEmailFromConsole();
+        String emailToVal = readEmailFromConsole();
         String email = Validator.emailValidator(emailToVal);
         System.out.print("TAJ szám: ");
         String taj = Validator.tajValidator(scanner.nextLine());
@@ -46,7 +72,6 @@ public class ReadFromConsole {
 
     public String readTaj() {
         System.out.println("TAJ szám: ");
-        Scanner scanner = new Scanner(System.in);
         String taj = scanner.nextLine();
         return Validator.tajValidator(taj);
     }

@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Scanner;
 
 public class Registration {
 
@@ -16,14 +15,17 @@ public class Registration {
         regCitizen(citizen);
     }
 
-    public void regFromFile() {
-        Validator validator = new Validator();
-        System.out.print("Add meg a file nevét a beolvasáshoz (kiterjesztéssel): ");
-        String fileName = "/" + new Scanner(System.in).nextLine();
-        TbdDAO tbdDAO = new TbdDAO();
-        try (Connection connection = tbdDAO.getDs().getConnection();
+    public void startRegFromFile() {
+        String file = new ReadFromConsole().readFileName();
+        regFromFile(file);
+    }
+
+    public void regFromFile(String file) {
+        String fileName = "/" + file;
+        MenuDAO menuDAO = new MenuDAO();
+        try (Connection connection = menuDAO.getDs().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO citizens (citizen_name, zip, age, email, taj) VALUES (?, ?, ?, ?, ?)")) {
-            InputStream is = TBD.class.getResourceAsStream(fileName);
+            InputStream is = Menu.class.getResourceAsStream(fileName);
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
                 connection.setAutoCommit(false);
                 String line;
@@ -31,21 +33,21 @@ public class Registration {
                 while ((line = br.readLine()) != null) {
                     String[] split = line.split(";");
                     String name = split[0];
-                    int zip = Integer.parseInt(split[1]);
+                    String zip = split[1];
                     byte age = Byte.parseByte(split[2]);
                     String email = split[3];
                     String taj = split[4];
-                    preparedStatement.setString(1, name); //namevalidator
-                    preparedStatement.setString(2, String.valueOf(zip)); //zipvalidator
-                    preparedStatement.setInt(3, validator.ageValidator(age));
-                    preparedStatement.setString(4, validator.emailValidator(email)); // tajvalidator
-                    preparedStatement.setString(5, taj);
+                    preparedStatement.setString(1, Validator.nameValidator(name));
+                    preparedStatement.setString(2, Validator.zipValidator(zip));
+                    preparedStatement.setInt(3, Validator.ageValidator(age));
+                    preparedStatement.setString(4, Validator.emailValidator(email)); // tajvalidator
+                    preparedStatement.setString(5, Validator.tajValidator(taj));
                     preparedStatement.executeUpdate();
                 }
                 connection.commit();
                 System.out.println("Sikeres beolvasás és feltöltés.\n");
             } catch (IOException ioe) {
-                throw new IllegalArgumentException("Can't read from the file.");
+                throw new IllegalArgumentException("Can't read from the file.", ioe);
             }
             connection.commit();
         } catch (SQLException sqlException) {
@@ -54,9 +56,9 @@ public class Registration {
     }
 
     public void regCitizen(Citizen citizen) {
-        try (PreparedStatement preparedStatement = new TbdDAO().getDs().getConnection().prepareStatement("INSERT INTO citizens (citizen_name, zip, age, email, taj) VALUES (?, ?, ?, ?, ?)")) {
+        try (PreparedStatement preparedStatement = new MenuDAO().getDs().getConnection().prepareStatement("INSERT INTO citizens (citizen_name, zip, age, email, taj) VALUES (?, ?, ?, ?, ?)")) {
             preparedStatement.setString(1, citizen.getFullName());
-            preparedStatement.setString(2, String.valueOf(citizen.getPostCode()));
+            preparedStatement.setString(2, citizen.getPostCode());
             preparedStatement.setByte(3, citizen.getAge());
             preparedStatement.setString(4, citizen.getEmail());
             preparedStatement.setString(5, citizen.getTajId());

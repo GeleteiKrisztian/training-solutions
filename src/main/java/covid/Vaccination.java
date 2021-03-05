@@ -7,24 +7,30 @@ import java.util.Scanner;
 
 public class Vaccination {
 
-    private List<Citizen> citizens;
-
     public void startVaccinateCitizen() {
         ReadFromConsole rfc = new ReadFromConsole();
         String zip = rfc.readZip();
-        citizens = new Generation().readFirst16CitizenToVaccinate(zip);
+        List<Citizen> citizens = new Generation().readFirst16CitizenToVaccinate(zip);
         if (citizens.size() == 0) {
             System.out.println("Gratulálunk! Nincs olyan,akit be lehetne oltani ezen az irányítószámon...MÉG!\n");
             return;
         }
         String taj = rfc.readTaj();
-        Citizen citizen = findCitizenByTaj(taj);
-        doVaccination(citizen);
+        Citizen citizen = findCitizenByTajBetween16(taj, citizens);
+        VaccineType vaccineType;
+        if (citizen.getNumberOfVaccination() == 0) {
+            vaccineType = chooseVaccineMenu();
+        } else {
+            vaccineType = citizen.getVaccineType();
+            System.out.println("Előző oltás automatikusan kiválasztva: " + citizen.getVaccineType().toString());
+        }
+        String desc = rfc.readDescription();
+        doVaccination(citizen, vaccineType, desc);
     }
 
     private void updateCitizenVaccinationCounter(Citizen citizen) {
         try (PreparedStatement preparedStatement =
-                     new TbdDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1, last_vaccination = NOW() WHERE citizen_id = ?")) {
+                     new MenuDAO().getDs().getConnection().prepareStatement("UPDATE `citizens` SET number_of_vaccination = number_of_vaccination + 1, last_vaccination = NOW() WHERE citizen_id = ?")) {
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
@@ -32,7 +38,7 @@ public class Vaccination {
         }
     }
 
-    public Citizen findCitizenByTaj(String taj) {
+    public Citizen findCitizenByTajBetween16(String taj, List<Citizen> citizens) {
         for (Citizen item : citizens) {
             if (item.getTajId().equals(taj) && new Validator().isContainsDbTaj(taj)) {
                 System.out.println(item.getFullName());
@@ -43,21 +49,13 @@ public class Vaccination {
     }
 
 
-    private void doVaccination(Citizen citizen) {
-        try (Connection connection = new TbdDAO().getDs().getConnection();
+    public void doVaccination(Citizen citizen, VaccineType vaccineType, String desc) {
+        try (Connection connection = new MenuDAO().getDs().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO vaccinations (citizen_id_f, vaccination_date, `status`, note, vaccination_type) VALUES (?, ?, ?, ?, ?)")) {
             LocalDateTime dateTime = LocalDateTime.now();
-            VaccineType vaccineType;
-            if (citizen.getNumberOfVaccination() == 0) {
-                vaccineType = chooseVaccineMenu();
-            } else {
-                vaccineType = citizen.getVaccineType();
-                System.out.println(citizen.getVaccineType().toString());
-            }
             preparedStatement.setInt(1, citizen.getId());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(dateTime));
             preparedStatement.setString(3, Status.values()[citizen.getNumberOfVaccination() + 1].toString());
-           String desc = new ReadFromConsole().readDescription();
             preparedStatement.setString(4, desc + "\n");
             preparedStatement.setString(5, vaccineType.toString());
             preparedStatement.executeUpdate();
@@ -98,27 +96,32 @@ public class Vaccination {
         return null;
     }
 
-    public void excludeCitizenFromVaccination() {
-        String taj = new ReadFromConsole().readTaj();
-            Citizen citizen = queryCitizenByTaj(taj);
-            try (Connection connection = new TbdDAO().getDs().getConnection();
+    public void startExcludeCitizenFromVaccList() {
+        ReadFromConsole rfc = new ReadFromConsole();
+        String taj = rfc.readTaj();
+        Citizen citizen = queryCitizenByTaj(taj);
+        String desc = rfc.readDescription();
+        excludeCitizenFromVaccination(citizen, desc);
+    }
+    public void excludeCitizenFromVaccination(Citizen citizen, String desc) {
+
+            try (Connection connection = new MenuDAO().getDs().getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO vaccinations (citizen_id_f, vaccination_date, `status`, note, vaccination_type) VALUES (?, ?, ?, ?, ?)")) {
 preparedStatement.setInt(1, citizen.getId());
 preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
 preparedStatement.setString(3, Status.REJECTED.toString());
-                String desc = new ReadFromConsole().readDescription();
                 preparedStatement.setString(4, desc);
                 preparedStatement.setString(5, null);
                 preparedStatement.executeQuery();
                 System.out.println("Oltás elutasításának regisztrációja sikerült.\n");
             } catch (SQLException sqlException) {
-                throw new IllegalStateException("Oltás elutasításának regisztrációja sikertelen.", sqlException);
+                throw new IllegalStateException("Can't exclude citizen from vaccination", sqlException);
             }
     }
 
     private Citizen queryCitizenByTaj(String taj) {
         if (!isCitizenRejected(taj)) {
-            try (Connection connection = new TbdDAO().getDs().getConnection();
+            try (Connection connection = new MenuDAO().getDs().getConnection();
                  PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM citizens WHERE taj = ?")) {
                 preparedStatement.setString(1, taj);
                 ResultSet res = preparedStatement.executeQuery();
@@ -131,6 +134,7 @@ preparedStatement.setString(3, Status.REJECTED.toString());
                     String tajId = res.getString(6);
                     byte numOfVaccination = -1;
                     LocalDateTime dateTime = Timestamp.valueOf(res.getString(8)).toLocalDateTime();
+
                     Citizen citizen = new Citizen(id, name, zip, age, email, tajId, numOfVaccination, dateTime);
                     return citizen;
                 }
@@ -142,7 +146,7 @@ preparedStatement.setString(3, Status.REJECTED.toString());
     }
 
     private boolean isCitizenRejected(String taj) {
-        try (Connection connection = new TbdDAO().getDs().getConnection();
+        try (Connection connection = new MenuDAO().getDs().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM citizens LEFT JOIN vaccinations ON citizen_id = vaccinations.citizen_id_f WHERE taj = ? AND status = 'REJECTED'")) {
             preparedStatement.setString(1, taj);
             ResultSet res = preparedStatement.executeQuery();
