@@ -1,0 +1,8 @@
+dateRep,day,month,year,cases,deaths,countriesAndTerritories,geoId,countryterritoryCode,popData2019,continentExp,Cumulative_number_for_14_days_of_COVID-19_cases_per_100000
+14/09/2020,14,9,2020,3,0,Cyprus,CY,CYP,875899,Europe,4.45256816
+13/09/2020,13,9,2020,3,0,Cyprus,CY,CYP,875899,Europe,4.56673658
+10/09/2020,10,9,2020,78,0,Jordan,JO,JOR,10000,Asia,8.93909211
+23/05/2020,23,5,2020,54,0,Zambia,ZM,ZMB,50000,Africa,4.21588134
+09/05/2020,9,5,2020,14,0,Zambia,ZM,ZMB,50000,Africa,0.46469874
+07/08/2020,7,8,2020,10,13,Zimbabwe,ZW,ZWE,875899,Africa,15.50649815
+03/04/2020,3,4,2020,0,0,Zimbabwe,ZW,ZWE,875899,Africa,0.05462439
