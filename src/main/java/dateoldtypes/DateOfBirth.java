@@ -67,7 +67,7 @@ public class DateOfBirth {
             throw new IllegalArgumentException("Illegal pattern string, cannot use: ");
         }
     DateFormat df = new SimpleDateFormat(pattern);
-        return df.format(date);
+        return df.format(date).toString();
     }
 
     public boolean isWeekDay() {
